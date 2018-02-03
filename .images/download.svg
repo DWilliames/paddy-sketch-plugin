@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="266" height="65" viewBox="0 0 266 65">
+  <g fill="none" fill-rule="evenodd">
+    <rect width="266" height="65" fill="#8ADC34" rx="12"/>
+    <text fill="#FFF" font-family="AvenirNext-Bold, Avenir Next" font-size="24" font-weight="bold">
+      <tspan x="64" y="40">Download now</tspan>
+    </text>
+    <path fill="#57A900" fill-rule="nonzero" d="M47.4,22.48 L44.88,19.24 C44.76,19.12 44.52,19 44.28,19 L27.72,19 C27.48,19 27.24,19.12 27.12,19.24 L24.6,22.48 C24.24,22.84 24,23.2 24,23.68 L24,40.6 C24,41.92 25.08,43 26.4,43 L45.6,43 C46.92,43 48,41.92 48,40.6 L48,35.8 L48,23.68 C48,23.2 47.76,22.84 47.4,22.48 Z M36,38 L30,31.8888889 L33.6,31.8888889 L33.6,27 L38.4,27 L38.4,31.8888889 L42,31.8888889 L36,38 Z M45,23 L28,23 L28.6071429,22 L44.3928571,22 L45,23 Z"/>
+  </g>
+</svg>

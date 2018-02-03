@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="189" height="48" viewBox="0 0 189 48">
+  <g fill="none" fill-rule="evenodd" transform="translate(0 2)">
+    <rect width="189" height="48"/>
+    <text fill="#1B2C3B" font-family="AvenirNext-Bold, Avenir Next" font-size="12" font-weight="bold">
+      <tspan x="33" y="33">Spacing &amp; distribution</tspan>
+    </text>
+    <text fill="#1B2C3B" font-family="AvenirNext-Heavy, Avenir Next" font-size="8" font-weight="600" opacity=".5">
+      <tspan x="33" y="19">JUMP TO</tspan>
+    </text>
+    <path fill="#1B2C3B" fill-rule="nonzero" d="M6.34514198,0.307364983 L6.34514198,2.0637644 C2.15362467,2.0637644 -1.3184275,3.34251174 0.490746353,9 C0.206306642,5.46387214 2.07425612,4.35356832 6.34514198,4.35356832 L6.34514198,6.07714892 C6.34514198,6.20130683 6.41979132,6.31360252 6.54463589,6.3614468 C6.58582174,6.37647228 6.62915267,6.38477584 6.67291263,6.38477584 C6.75914548,6.38477584 6.8445203,6.35393406 6.90844415,6.29422756 L10.9021836,3.41645292 C11.0326055,3.29664449 11.0326055,3.10091786 10.9021836,2.98150484 L6.90844415,0.0898909443 C6.81277288,0.00250592164 6.66862244,-0.0243817777 6.54463589,0.0234625108 C6.4193623,0.0709113919 6.34514198,0.18281167 6.34514198,0.307364983 Z" opacity=".5" transform="translate(76 12)"/>
+    <g transform="translate(0 8)">
+      <path fill="#F88234" fill-rule="nonzero" d="M12.5,25 C0.0964406276,25 0,19.4035594 0,12.5 C0,5.59644062 0.0964406276,1.51899793e-15 12.5,0 C24.9035594,0 25,5.59644062 25,12.5 C25,19.4035594 24.9035594,25 12.5,25 Z"/>
+      <rect width="11.458" height="5.208" x="6.771" y="5.208" fill="#C85001" rx="1"/>
+      <rect width="15.625" height="5.208" x="4.688" y="14.583" fill="#C85001" rx="1"/>
+      <g fill="#FFF" transform="translate(10.417 10.417)">
+        <rect width="1.042" height="4.167" x="1.563"/>
+        <rect width="4.167" height="1.042"/>
+        <rect width="4.167" height="1.042" y="3.125"/>
+      </g>
+      <g fill="#FFF" transform="translate(10.417 1.042)">
+        <rect width="1.042" height="4.167" x="1.563"/>
+        <rect width="4.167" height="1.042" y="3.125"/>
+      </g>
+      <g fill="#FFF" transform="translate(10.417 19.792)">
+        <rect width="1.042" height="4.167" x="1.563"/>
+        <rect width="4.167" height="1.042"/>
+      </g>
+    </g>
+  </g>
+</svg>

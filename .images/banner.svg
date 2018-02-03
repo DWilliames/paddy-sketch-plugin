@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="981" height="562" viewBox="0 0 981 562">
+  <defs>
+    <rect id="banner-a" width="725" height="823" x="94.152" y="79.8"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <g transform="translate(404 -142)">
+      <mask id="banner-b" fill="#fff">
+        <use xlink:href="#banner-a"/>
+      </mask>
+      <use fill="#1B2C3B" opacity=".1" transform="rotate(15 456.652 491.3)" xlink:href="#banner-a"/>
+      <g mask="url(#banner-b)" opacity=".5">
+        <g transform="rotate(15 -528.543 1091.822)">
+          <path fill="#8ADC34" fill-rule="nonzero" d="M48.5,97 C0.374189635,97 0,75.2858104 0,48.5 C0,21.7141896 0.374189635,5.89371196e-15 48.5,0 C96.6258104,0 97,21.7141896 97,48.5 C97,75.2858104 96.6258104,97 48.5,97 Z"/>
+          <rect width="32.333" height="32.333" x="32.333" y="32.333" fill="#57A900" rx="2"/>
+          <rect width="4.042" height="24.25" x="46.479" y="8.083" fill="#FFF"/>
+          <rect width="4.042" height="24.25" x="46.479" y="64.667" fill="#FFF"/>
+          <rect width="20.208" height="4.042" x="38.396" y="8.083" fill="#FFF"/>
+          <rect width="4.042" height="20.208" x="84.875" y="38.396" fill="#FFF"/>
+          <rect width="4.042" height="20.208" x="8.083" y="38.396" fill="#FFF"/>
+          <rect width="24.25" height="4.042" x="64.667" y="46.479" fill="#FFF"/>
+          <rect width="24.25" height="4.042" x="8.083" y="46.479" fill="#FFF"/>
+          <rect width="20.208" height="4.042" x="38.396" y="84.875" fill="#FFF"/>
+          <g transform="translate(141.49)">
+            <path fill="#8A8E93" fill-rule="nonzero" d="M48.5,97 C0.374189635,97 0,75.2858104 0,48.5 C0,21.7141896 0.374189635,5.89371196e-15 48.5,0 C96.6258104,0 97,21.7141896 97,48.5 C97,75.2858104 96.6258104,97 48.5,97 Z"/>
+            <polygon fill="#FFF" points="72.577 62.386 66.983 64.024 68.622 58.431 66.983 52.838 72.577 54.476 78.17 52.838 76.532 58.431 78.17 64.024" transform="rotate(-45 72.577 58.43)"/>
+            <polygon fill="#575B60" points="76.618 34.094 71.025 35.732 72.663 30.139 71.025 24.546 76.618 26.184 82.212 24.546 80.573 30.139 82.212 35.732" transform="rotate(-45 76.618 30.14)"/>
+            <polygon fill="#FFF" points="44.068 23.665 35.77 26.095 38.201 17.797 35.77 9.5 44.068 11.93 52.366 9.5 49.936 17.797 52.366 26.095" transform="rotate(-45 44.068 17.797)"/>
+            <g transform="rotate(45 -8.267 85.412)">
+              <rect width="12.125" height="45.424" y="14.601" fill="#575B60" rx="1"/>
+              <path fill="#FFF" d="M1,0 L11.125,-1.11022302e-16 C11.6772847,-2.12475365e-16 12.125,0.44771525 12.125,1 L12.125,19.4673729 L0,19.4673729 L0,1 C-6.76353751e-17,0.44771525 0.44771525,1.01453063e-16 1,0 Z"/>
+            </g>
+          </g>
+          <g transform="translate(141.49 140.269)">
+            <path fill="#5BCFFF" fill-rule="nonzero" d="M48.5,97 C0.374189635,97 0,75.2858104 0,48.5 C0,21.7141896 0.374189635,5.89371196e-15 48.5,0 C96.6258104,0 97,21.7141896 97,48.5 C97,75.2858104 96.6258104,97 48.5,97 Z"/>
+            <rect width="32.333" height="16.167" x="28.292" y="52.542" fill="#359DCC" rx="1"/>
+            <rect width="52.542" height="16.167" x="28.292" y="28.292" fill="#359DCC" rx="1"/>
+            <rect width="4.042" height="64.667" x="18.188" y="16.167" fill="#FFF"/>
+          </g>
+          <g transform="translate(0 140.269)">
+            <path fill="#F88234" fill-rule="nonzero" d="M48.5,97 C0.374189635,97 0,75.2858104 0,48.5 C0,21.7141896 0.374189635,5.89371196e-15 48.5,0 C96.6258104,0 97,21.7141896 97,48.5 C97,75.2858104 96.6258104,97 48.5,97 Z"/>
+            <rect width="44.458" height="20.208" x="26.271" y="20.208" fill="#C85001" rx="1"/>
+            <rect width="60.625" height="20.208" x="18.188" y="56.583" fill="#C85001" rx="1"/>
+            <g fill="#FFF" transform="translate(40.417 40.417)">
+              <rect width="4.042" height="16.167" x="6.063"/>
+              <rect width="16.167" height="4.042"/>
+              <rect width="16.167" height="4.042" y="12.125"/>
+            </g>
+            <g fill="#FFF" transform="translate(40.417 4.042)">
+              <rect width="4.042" height="16.167" x="6.063"/>
+              <rect width="16.167" height="4.042" y="12.125"/>
+            </g>
+            <g fill="#FFF" transform="translate(40.417 76.792)">
+              <rect width="4.042" height="16.167" x="6.063"/>
+              <rect width="16.167" height="4.042"/>
+            </g>
+          </g>
+          <g transform="translate(0 279.78)">
+            <path fill="#C44CE6" fill-rule="nonzero" d="M48.5,97 C0.374189635,97 0,75.2858104 0,48.5 C0,21.7141896 0.374189635,5.89371196e-15 48.5,0 C96.6258104,0 97,21.7141896 97,48.5 C97,75.2858104 96.6258104,97 48.5,97 Z"/>
+            <circle cx="48.5" cy="48.5" r="34.354" fill="#9119B3"/>
+            <g fill="#FFF" transform="translate(32.333 30.313)">
+              <g fill-rule="nonzero" transform="translate(0 1.653)">
+                <path d="M6.62833333 7.60568182C8.89166667 4.96022727 12.4483333 3.30681818 16.1666667 3.30681818 23.28 3.30681818 29.1 9.25909091 29.1 16.5340909 29.1 16.8647727 29.1 17.3607955 29.1 17.6914773L31.8483333 20.5022727C32.1716667 19.1795455 32.3333333 17.8568182 32.3333333 16.5340909 32.3333333 7.44034091 25.0583333-1.77635684e-15 16.1666667-1.77635684e-15 11.4783333 1.16068771e-15 7.275 1.98409091 4.365 5.29090909L6.62833333 7.60568182zM25.3816667 25.7931818C23.1183333 28.2732955 19.7233333 29.7613636 16.1666667 29.7613636 9.05333333 29.7613636 3.23333333 23.8090909 3.23333333 16.5340909 3.23333333 16.2034091 3.23333333 15.7073864 3.23333333 15.3767045L.485 12.5659091C.161666667 13.8886364 0 15.2113636 0 16.5340909 0 25.6278409 7.275 33.0681818 16.1666667 33.0681818 20.6933333 33.0681818 24.735 31.0840909 27.645 28.1079545L25.3816667 25.7931818z"/>
+              </g>
+              <polygon fill-rule="nonzero" points="13.742 10.747 3.233 11.574 4.042 .827"/>
+              <polygon fill-rule="nonzero" points="18.592 25.628 29.1 24.801 28.292 35.548"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect width="981" height="90" y="472" fill="#1B2C3B"/>
+    <text fill="#1B2C3B" font-family="AvenirNext-Bold, Avenir Next" font-size="99" font-weight="bold">
+      <tspan x="67" y="159">Paddy</tspan>
+    </text>
+    <text fill="#535F66" font-family="AvenirNext-Medium, Avenir Next" font-size="24" font-weight="400">
+      <tspan x="67" y="218">Automated padding and </tspan> <tspan x="67" y="250">spacing for your Sketch layers</tspan>
+    </text>
+    <text fill="#FFF" font-family="AvenirNext-Medium, Avenir Next" font-size="16" font-weight="400">
+      <tspan x="703" y="518.272">Works with </tspan> <tspan x="787.464" y="518" font-family="AvenirNext-Bold, Avenir Next" font-weight="bold">Sketch 47</tspan> <tspan x="866.072" y="518.272"> </tspan> <tspan x="788.12" y="535.272">and newer</tspan>
+    </text>
+    <g transform="translate(898 495)">
+      <polygon fill="#FFAE00" points="28.5 0 57 32.745 44.654 49.289 28.5 51 12.346 49.289 0 32.745" transform="rotate(-180 28.5 25.5)"/>
+      <polygon fill="#EC6C00" points="28.5 0 57 33 0 33" transform="rotate(-180 28.5 25.5)"/>
+      <polygon fill="#FFAE00" points="17.5 0 35 33 0 33" transform="rotate(-180 23 25.5)"/>
+      <polygon fill="#FFEFB4" points="17.5 18 35 0 0 0" transform="rotate(-180 23 9)"/>
+      <polygon fill="#FFAE00" points="0 18 6.682 8.938 13 0 .729 0" transform="rotate(-180 6.5 10)"/>
+      <polygon fill="#FFAE00" points="0 18 6.682 8.938 13 0 .729 0" transform="matrix(1 0 0 -1 44 20)"/>
+      <polygon fill="#FED305" points="16.19 16.313 17 0 0 18" transform="rotate(-180 14 9)"/>
+      <polygon fill="#FED305" points="16.19 16.313 17 0 0 18" transform="matrix(1 0 0 -1 29 18)"/>
+    </g>
+    <text fill="#FFF" font-family="AvenirNext-DemiBold, Avenir Next" font-size="16" font-weight="500">
+      <tspan x="67" y="510">Dynamic buttons • Auto-adaptive • Distribute </tspan> <tspan x="67" y="532">layers • Symbols support • Plus much more…</tspan>
+    </text>
+    <g transform="translate(67 321)">
+      <rect width="266" height="65" fill="#8ADC34" rx="12"/>
+      <text fill="#FFF" font-family="AvenirNext-Bold, Avenir Next" font-size="24" font-weight="bold">
+        <tspan x="64" y="40">Download now</tspan>
+      </text>
+      <path fill="#57A900" fill-rule="nonzero" d="M47.4,22.48 L44.88,19.24 C44.76,19.12 44.52,19 44.28,19 L27.72,19 C27.48,19 27.24,19.12 27.12,19.24 L24.6,22.48 C24.24,22.84 24,23.2 24,23.68 L24,40.6 C24,41.92 25.08,43 26.4,43 L45.6,43 C46.92,43 48,41.92 48,40.6 L48,35.8 L48,23.68 C48,23.2 47.76,22.84 47.4,22.48 Z M36,38 L30,31.8888889 L33.6,31.8888889 L33.6,27 L38.4,27 L38.4,31.8888889 L42,31.8888889 L36,38 Z M45,23 L28,23 L28.6071429,22 L44.3928571,22 L45,23 Z"/>
+    </g>
+  </g>
+</svg>

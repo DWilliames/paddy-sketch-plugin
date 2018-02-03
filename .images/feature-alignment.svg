@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="80" viewBox="0 0 380 80">
+  <g fill="none" fill-rule="evenodd" transform="translate(0 -4)">
+    <rect width="361" height="88"/>
+    <text fill="#1B2C3B" font-family="AvenirNext-Bold, Avenir Next" font-size="26" font-weight="bold">
+      <tspan x="68" y="51">Auto alignment</tspan>
+    </text>
+    <g transform="translate(0 20)">
+      <path fill="#5BCFFF" fill-rule="nonzero" d="M24,48 C0.185166005,48 0,37.254834 0,24 C0,10.745166 0.185166005,2.91647602e-15 24,0 C47.814834,0 48,10.745166 48,24 C48,37.254834 47.814834,48 24,48 Z"/>
+      <rect width="16" height="8" x="14" y="26" fill="#359DCC" rx="1"/>
+      <rect width="26" height="8" x="14" y="14" fill="#359DCC" rx="1"/>
+      <rect width="2" height="32" x="9" y="8" fill="#FFF"/>
+    </g>
+  </g>
+</svg>

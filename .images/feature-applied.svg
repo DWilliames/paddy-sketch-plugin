@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="80" viewBox="0 0 380 80">
+  <g fill="none" fill-rule="evenodd" transform="translate(0 -4)">
+    <rect width="361" height="88"/>
+    <text fill="#1B2C3B" font-family="AvenirNext-Bold, Avenir Next" font-size="26" font-weight="bold">
+      <tspan x="68" y="51">Automatically applied</tspan>
+    </text>
+    <g transform="translate(0 20)">
+      <path fill="#8A8E93" fill-rule="nonzero" d="M24,48 C0.185166005,48 0,37.254834 0,24 C0,10.745166 0.185166005,2.91647602e-15 24,0 C47.814834,0 48,10.745166 48,24 C48,37.254834 47.814834,48 24,48 Z"/>
+      <polygon fill="#FFF" points="35.914 30.871 33.146 31.682 33.957 28.914 33.146 26.146 35.914 26.957 38.682 26.146 37.871 28.914 38.682 31.682" transform="rotate(-45 35.914 28.914)"/>
+      <polygon fill="#575B60" points="37.914 16.871 35.146 17.682 35.957 14.914 35.146 12.146 37.914 12.957 40.682 12.146 39.871 14.914 40.682 17.682" transform="rotate(-45 37.914 14.914)"/>
+      <polygon fill="#FFF" points="21.807 11.71 17.701 12.913 18.903 8.807 17.701 4.701 21.807 5.903 25.913 4.701 24.71 8.807 25.913 12.913" transform="rotate(-45 21.807 8.807)"/>
+      <g transform="rotate(45 -4.091 42.266)">
+        <rect width="6" height="22.478" y="7.225" fill="#575B60" rx="1"/>
+        <path fill="#FFF" d="M1,0 L5,0 C5.55228475,-1.01453063e-16 6,0.44771525 6,1 L6,9.63333918 L0,9.63333918 L0,1 C-6.76353751e-17,0.44771525 0.44771525,1.01453063e-16 1,0 Z"/>
+      </g>
+    </g>
+  </g>
+</svg>
