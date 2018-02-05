@@ -1,4 +1,5 @@
 @import 'padding.js'
+@import 'autoLayoutLookup.js'
 
 /**
  * Get the container frame for a BG layer
@@ -22,10 +23,65 @@ function getContainerFrameForBGLayer(bg) {
   })
 
   var frames = validLayers.map(function(layer) {
-    return MSRect.rectWithRect(layer.frameForTransforms())
+    return rectForLayer(layer)
   })
 
   return MSRect.rectWithUnionOfRects(frames)
+}
+
+var takeIntoAccountStackViews = false
+
+
+// Return the rect for a layer as an MSRect
+function rectForLayer(layer) {
+  if (!takeIntoAccountStackViews || !layerIsStackView(layer)) {
+    return MSRect.rectWithRect(layer.frameForTransforms())
+  }
+
+  // Calculate based on stack view
+  var props = alPropertiesForLayer(layer)
+  //     ADModelStackView
+  // {
+  //     align = 5;
+  //     isCollapsing = 1;
+  //     spacing = 2;
+  //     type = 0;
+  // }
+
+  if (props.type == 0) {
+    // Vertical
+    var sortedLayers = layer.layers().sort(function(a, b) {
+      return rectForLayer(a).y() <= rectForLayer(b).y() ? -1 : 1
+    })
+
+    // Filter out hidden layers if 'isCollapsing'
+    var layers = (props.isCollapsing == 1) ? filter(sortedLayers, function(layer) {
+      return layer.isVisible()
+    }) : sortedLayers
+
+    var frames = []
+    layers.forEach(function(sublayer, index) {
+      var rect = MSRect.rectWithRect(sublayer.frameForTransforms())
+
+      if (frames.length > 0) {
+        var previous = frames[frames.length - 1]
+        rect.y = previous.y() + previous.height() + props.spacing
+      } else {
+        rect.y = MSRect.rectWithRect(layer.frameForTransforms()).y()
+      }
+
+      frames.push(rect)
+    })
+
+    return MSRect.rectWithUnionOfRects(frames)
+  } else {
+    // Horizontal
+
+    // TODO
+  }
+
+  return MSRect.rectWithRect(layer.frameForTransforms())
+
 }
 
 
