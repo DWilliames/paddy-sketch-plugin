@@ -47,41 +47,49 @@ function rectForLayer(layer) {
   //     spacing = 2;
   //     type = 0;
   // }
+  //
 
-  if (props.type == 0) {
-    // Vertical
-    var sortedLayers = layer.layers().sort(function(a, b) {
+  var vertical = (props.type == 0) // Else horizontal
+
+  // Vertical
+  var sortedLayers = layer.layers().sort(function(a, b) {
+    if (vertical) {
       return rectForLayer(a).y() <= rectForLayer(b).y() ? -1 : 1
-    })
+    } else {
+      return rectForLayer(a).x() <= rectForLayer(b).x() ? -1 : 1
+    }
 
-    // Filter out hidden layers if 'isCollapsing'
-    var layers = (props.isCollapsing == 1) ? filter(sortedLayers, function(layer) {
-      return layer.isVisible()
-    }) : sortedLayers
+  })
 
-    var frames = []
-    layers.forEach(function(sublayer, index) {
-      var rect = MSRect.rectWithRect(sublayer.frameForTransforms())
+  // Filter out hidden layers if 'isCollapsing'
+  var layers = (props.isCollapsing == 1) ? filter(sortedLayers, function(layer) {
+    return layer.isVisible()
+  }) : sortedLayers
 
-      if (frames.length > 0) {
-        var previous = frames[frames.length - 1]
+  var frames = []
+  layers.forEach(function(sublayer, index) {
+    var rect = MSRect.rectWithRect(sublayer.frameForTransforms())
+
+    if (frames.length > 0) {
+      var previous = frames[frames.length - 1]
+
+      if (vertical) {
         rect.y = previous.y() + previous.height() + props.spacing
       } else {
-        rect.y = MSRect.rectWithRect(layer.frameForTransforms()).y()
+        rect.x = previous.x() + previous.width() + props.spacing
       }
 
-      frames.push(rect)
-    })
+    }
 
-    return MSRect.rectWithUnionOfRects(frames)
-  } else {
-    // Horizontal
+    frames.push(rect)
+  })
 
-    // TODO
-  }
+  var unionRect = MSRect.rectWithUnionOfRects(frames)
+  var originalRect = MSRect.rectWithRect(layer.frameForTransforms())
+  unionRect.y = originalRect.y()
+  unionRect.x = originalRect.x()
 
-  return MSRect.rectWithRect(layer.frameForTransforms())
-
+  return unionRect
 }
 
 
