@@ -31,11 +31,6 @@ function updateForSymbolInstance(symbol) {
   var additionalWidth = masterFrame.width() - originalBackgroundFrame.width()
   var additionalHeight = masterFrame.height() - originalBackgroundFrame.height()
 
-  var maxTextWidth = null
-  if (padding.conditions && padding.conditions.maxWidth) {
-    maxTextWidth = padding.conditions.maxWidth - padding.left - padding.right
-  }
-
   var ignoreWidth = (padding.left == 'x' && padding.right == 'x')
 
   // Get all the layers to override, sorted from left to right on the screen
@@ -126,11 +121,25 @@ function updateForSymbolInstance(symbol) {
     layer.textBehaviour = 0
     layer.adjustFrameToFit()
 
+    var maxTextWidth = null
+    if (padding.conditions && padding.conditions.maxWidth) {
+      maxTextWidth = padding.conditions.maxWidth - padding.left - padding.right
+    }
+
     if ((maxTextWidth && layer.frame().width() > maxTextWidth) || ignoreWidth) {
+
+      // Make sure the text is a single line – we're trying to get the size of the height
+      var newStringValue = layer.stringValue()
+      layer.stringValue = 'Ay' // We want a rough height, including ascenders and descenders
 
       // There's a tiny offset we need to calculate, to make it look 'just right'
       var originalGlyphBounds = layer.glyphBounds()
       var yOffset = layer.frame().height() - (originalGlyphBounds.size.height + originalGlyphBounds.origin.y)
+      print('Layer height: ' + layer.frame().height())
+      print('Original glyph bounds:')
+      print(originalGlyphBounds)
+
+      layer.stringValue = newStringValue
 
       layer.textBehaviour = 1
 
@@ -139,8 +148,13 @@ function updateForSymbolInstance(symbol) {
         var widthDiff = masterFrame.width() - originalLayerWidth
 
         layer.frame().width = symbol.frame().width() - widthDiff
-      } else {
-        layer.frame().width = maxTextWidth
+      }
+
+      print('Max width: ' + maxTextWidth)
+      print('Layer width: ' + layer.frame().width())
+      if (maxTextWidth && layer.frame().width() > (maxTextWidth - layer.absoluteRect().origin().x)) {
+        layer.frame().width = (maxTextWidth - layer.absoluteRect().origin().x)
+        print('New width: ' + layer.frame().width())
       }
 
       layer.adjustFrameToFit()
@@ -148,6 +162,10 @@ function updateForSymbolInstance(symbol) {
       var glyphBounds = layer.glyphBounds()
       var height = glyphBounds.size.height + glyphBounds.origin.y + yOffset
       layer.frame().height = height
+
+      print('New glyph bounds')
+      print(glyphBounds)
+      print('height: ' + height)
     }
 
     if (!dependents[id]) return
@@ -211,7 +229,7 @@ function updateForSymbolInstance(symbol) {
 
   fixEdges(bg)
 
-  takeIntoAccountStackViews = true
+  // takeIntoAccountStackViews = true
 
   updatePaddingForLayerBG(bg)
 
@@ -258,7 +276,7 @@ function updateForSymbolInstance(symbol) {
     }
   })
 
-  takeIntoAccountStackViews = false
+  // takeIntoAccountStackViews = false
 
   updatePaddingForLayerBG(bg)
 
