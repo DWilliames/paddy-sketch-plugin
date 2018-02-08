@@ -128,9 +128,15 @@ function updateForSymbolInstance(symbol) {
 
     if ((maxTextWidth && layer.frame().width() > maxTextWidth) || ignoreWidth) {
 
+      // Make sure the text is a single line – we're trying to get the size of the height
+      var newStringValue = layer.stringValue()
+      layer.stringValue = 'Ay' // We want a rough height, including ascenders and descenders
+
       // There's a tiny offset we need to calculate, to make it look 'just right'
       var originalGlyphBounds = layer.glyphBounds()
       var yOffset = layer.frame().height() - (originalGlyphBounds.size.height + originalGlyphBounds.origin.y)
+
+      layer.stringValue = newStringValue
 
       layer.textBehaviour = 1
 

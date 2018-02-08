@@ -227,6 +227,10 @@ function defaultSpacing() {
 function applySpacingToGroup(spacing, groupLayer) {
   if (!spacing) return
 
+  // Get the current group position
+  var beginningX = groupLayer.frame().x()
+  var beginningY = groupLayer.frame().y()
+
   // Valid layers for spacing
   var layers = filter(groupLayer.layers(), function(layer) {
     if (layerHasPadding(layer))
@@ -291,39 +295,44 @@ function applySpacingToGroup(spacing, groupLayer) {
 
   if (spacing.align) {
 
+
+
     log(2, 'Will align layers', layers.map(function(layer) {
       return layer.name() + "\n"
     }))
     // if (spacing.layout == "v") {
-      layers.forEach(function(layer) {
-        if (spacing.align == "l") {
-          layer.frame().setX(minX)
-        } else if (spacing.align == "r") {
-          layer.frame().setMaxX(maxX)
-        } else if (spacing.align == "c") {
-          var mid = minX + (maxX - minX) / 2
-          layer.frame().setMidX(mid)
-        }
-      })
+    layers.forEach(function(layer) {
+      if (spacing.align == "l") {
+        layer.frame().setX(minX)
+      } else if (spacing.align == "r") {
+        layer.frame().setMaxX(maxX)
+      } else if (spacing.align == "c") {
+        var mid = minX + (maxX - minX) / 2
+        layer.frame().setMidX(mid)
+      }
+    })
 
-    // } else if (spacing.layout == "h") {
-      layers.forEach(function(layer) {
-        if (spacing.align == "t") {
-          layer.frame().setY(minY)
-        } else if (spacing.align == "b") {
-          layer.frame().setMaxY(maxY)
-        } else if (spacing.align == "m") {
-          var mid = minY + (maxY - minY) / 2
-          layer.frame().setMidY(mid)
-        }
-      })
-    // }
+  // } else if (spacing.layout == "h") {
+    layers.forEach(function(layer) {
+      if (spacing.align == "t") {
+        layer.frame().setY(minY)
+      } else if (spacing.align == "b") {
+        layer.frame().setMaxY(maxY)
+      } else if (spacing.align == "m") {
+        var mid = minY + (maxY - minY) / 2
+        layer.frame().setMidY(mid)
+      }
+    })
   }
 
 
 
   log(2, 'Sorted layers', sortedLayers)
   groupLayer.layerDidEndResize()
+
+  // Reset the position to be the same
+  groupLayer.frame().setX(beginningX)
+  groupLayer.frame().setY(beginningY)
 }
 
 
