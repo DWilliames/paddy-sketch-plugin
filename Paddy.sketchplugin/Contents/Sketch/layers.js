@@ -1,4 +1,5 @@
 @import 'padding.js'
+@import 'autoLayoutLookup.js'
 
 /**
  * Get the container frame for a BG layer
@@ -21,11 +22,85 @@ function getContainerFrameForBGLayer(bg) {
     return true
   })
 
+  // takeIntoAccountStackViews = true
+
   var frames = validLayers.map(function(layer) {
-    return MSRect.rectWithRect(layer.frameForTransforms())
+    return rectForLayer(layer)
   })
 
+  // takeIntoAccountStackViews = false
+
   return MSRect.rectWithUnionOfRects(frames)
+}
+
+
+// Whether to check for Stack Groups
+var takeIntoAccountStackViews = true
+
+
+// Return the rect for a layer as an MSRect
+function rectForLayer(layer) {
+  if (!takeIntoAccountStackViews || !layerIsStackView(layer)) {
+    return MSRect.rectWithRect(layer.frameForTransforms())
+  }
+
+  // Calculate based on stack view
+  var props = alPropertiesForLayer(layer)
+  //     ADModelStackView
+  // {
+  //     align = 5;
+  //     isCollapsing = 1;
+  //     spacing = 2;
+  //     type = 0;
+  // }
+
+
+  var vertical = (props.type == 0) // Else horizontal
+
+  // Filter out hidden layers if StackGroup 'isCollapsing'
+  var layers = (props.isCollapsing == 1) ? filter(layer.layers(), function(layer) {
+    return layer.isVisible()
+  }) : sortedLayers
+
+  // Map each layer to its rect
+  var rects = layers.map(function(layer) {
+    return rectForLayer(layer)
+  })
+
+  // Sort the layers
+  // Vertical – Top to bottom
+  // Horizontal – Left to right
+  var sortedRects = rects.sort(function(a, b) {
+    if (vertical) {
+      return a.y() <= b.y() ? -1 : 1
+    } else {
+      return a.x() <= b.x() ? -1 : 1
+    }
+  })
+
+  var frames = []
+  sortedRects.forEach(function(rect, index) {
+
+    if (frames.length > 0) {
+      var previous = frames[frames.length - 1]
+
+      if (vertical) {
+        rect.y = previous.y() + previous.height() + props.spacing
+      } else {
+        rect.x = previous.x() + previous.width() + props.spacing
+      }
+
+    }
+
+    frames.push(rect)
+  })
+
+  var unionRect = MSRect.rectWithUnionOfRects(frames)
+  var originalRect = MSRect.rectWithRect(layer.frameForTransforms())
+  unionRect.y = originalRect.y()
+  unionRect.x = originalRect.x()
+
+  return unionRect
 }
 
 

@@ -36,6 +36,7 @@ function updateForSymbolInstance(symbol) {
     maxTextWidth = padding.conditions.maxWidth - padding.left - padding.right
   }
 
+  var ignoreWidth = (padding.left == 'x' && padding.right == 'x')
 
   // Get all the layers to override, sorted from left to right on the screen
   var layersToOverride = filter(master.children(), function(layer) {
@@ -125,14 +126,28 @@ function updateForSymbolInstance(symbol) {
     layer.textBehaviour = 0
     layer.adjustFrameToFit()
 
-    if (maxTextWidth && layer.frame().width() > maxTextWidth) {
+    if ((maxTextWidth && layer.frame().width() > maxTextWidth) || ignoreWidth) {
+
+      // Make sure the text is a single line – we're trying to get the size of the height
+      var newStringValue = layer.stringValue()
+      layer.stringValue = 'Ay' // We want a rough height, including ascenders and descenders
 
       // There's a tiny offset we need to calculate, to make it look 'just right'
       var originalGlyphBounds = layer.glyphBounds()
       var yOffset = layer.frame().height() - (originalGlyphBounds.size.height + originalGlyphBounds.origin.y)
 
+      layer.stringValue = newStringValue
+
       layer.textBehaviour = 1
-      layer.frame().width = maxTextWidth
+
+      if (ignoreWidth) {
+        var originalLayerWidth = originalProperties[id].width
+        var widthDiff = masterFrame.width() - originalLayerWidth
+
+        layer.frame().width = symbol.frame().width() - widthDiff
+      } else {
+        layer.frame().width = maxTextWidth
+      }
 
       layer.adjustFrameToFit()
 
@@ -202,6 +217,8 @@ function updateForSymbolInstance(symbol) {
 
   fixEdges(bg)
 
+  takeIntoAccountStackViews = true
+
   updatePaddingForLayerBG(bg)
 
   var newSize = bg.frame()
@@ -214,8 +231,15 @@ function updateForSymbolInstance(symbol) {
   if (newHeight < 0) {
     newHeight = -newHeight
   }
-  symbol.frame().setWidth(newWidth)
-  symbol.frame().setHeight(newHeight)
+
+  if (!ignoreWidth) {
+    symbol.frame().setWidth(newWidth)
+  }
+
+  if (!(padding.top == 'x' && padding.bottom == 'x')) {
+    symbol.frame().setHeight(newHeight)
+  }
+
   log(2, 'Got new size from master', newSize)
   log(3, 'Resetting overrides on master')
 
@@ -239,6 +263,8 @@ function updateForSymbolInstance(symbol) {
       layer.frame().setY(originalPositions[id].y)
     }
   })
+
+  takeIntoAccountStackViews = false
 
   updatePaddingForLayerBG(bg)
 
@@ -269,10 +295,16 @@ function getStringOverridesForSymbolInstance(symbol) {
     var overrideValue = availableOverride.overrideValue()
     log(2, 'getting override for', overrideValue)
 
-    if (overrideValue && availableOverride.overridePoint().property() == 'stringValue') {
-      var value = (overrideValue.isMemberOfClass(MSOverrideValue)) ? overrideValue.value() : overrideValue
-      var key = availableOverride.overridePoint().layerID()
-      overrides[key] = value
+    if (availableOverride.overridePoint().property() == 'stringValue') {
+      if (!overrideValue) {
+        overrideValue = availableOverride.defaultValue()
+      }
+
+      if (overrideValue) {
+        var value = (overrideValue.isMemberOfClass(MSOverrideValue)) ? overrideValue.value() : overrideValue
+        var key = availableOverride.overridePoint().layerID()
+        overrides[key] = value
+      }
     }
   })
 
