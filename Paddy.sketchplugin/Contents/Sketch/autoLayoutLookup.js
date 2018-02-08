@@ -2,24 +2,14 @@
 
 var alCommand = autoLayoutCommand()
 
-function commandsForPluginNames(pluginName) {
-
-  var pluginsURLs = MSPluginManager.pluginsURLs()
-  if (pluginsURLs.length < 1) return
-
-  var baseURL = pluginsURLs[0] // Should link to 'file:///Users/{username}/Library/Application%20Support/com.bohemiancoding.sketch3/Plugins/'
-  var pluginURL = baseURL.URLByAppendingPathComponent(pluginName + '.sketchplugin') // Maybe 'LaunchpadPlugin' instead?
-  if (!pluginURL) return
-
-  var plugin = MSPluginBundle.pluginBundleWithURL(pluginURL)
-  if (!plugin) return
-
-  var commands = plugin.commands()
-}
-
 function autoLayoutCommand() {
 
-  var commands = commandsForPluginNames('AutoLayoutPlugin')
+  var pluginManager = AppController.sharedInstance().pluginManager()
+  var plugin = pluginManager.plugins().objectForKey('com.animaapp.stc-sketch-plugin')
+
+  if (!plugin) return
+  var commands = plugin.commands()
+
   if (!commands) return
 
   return commands['autolayout']

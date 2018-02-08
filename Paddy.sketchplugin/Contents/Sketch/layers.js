@@ -22,14 +22,20 @@ function getContainerFrameForBGLayer(bg) {
     return true
   })
 
+  // takeIntoAccountStackViews = true
+
   var frames = validLayers.map(function(layer) {
     return rectForLayer(layer)
   })
 
+  // takeIntoAccountStackViews = false
+
   return MSRect.rectWithUnionOfRects(frames)
 }
 
-var takeIntoAccountStackViews = false
+
+// Whether to check for Stack Groups
+var takeIntoAccountStackViews = true
 
 
 // Return the rect for a layer as an MSRect
@@ -47,28 +53,33 @@ function rectForLayer(layer) {
   //     spacing = 2;
   //     type = 0;
   // }
-  //
+
 
   var vertical = (props.type == 0) // Else horizontal
 
-  // Vertical
-  var sortedLayers = layer.layers().sort(function(a, b) {
-    if (vertical) {
-      return rectForLayer(a).y() <= rectForLayer(b).y() ? -1 : 1
-    } else {
-      return rectForLayer(a).x() <= rectForLayer(b).x() ? -1 : 1
-    }
-
-  })
-
-  // Filter out hidden layers if 'isCollapsing'
-  var layers = (props.isCollapsing == 1) ? filter(sortedLayers, function(layer) {
+  // Filter out hidden layers if StackGroup 'isCollapsing'
+  var layers = (props.isCollapsing == 1) ? filter(layer.layers(), function(layer) {
     return layer.isVisible()
   }) : sortedLayers
 
+  // Map each layer to its rect
+  var rects = layers.map(function(layer) {
+    return rectForLayer(layer)
+  })
+
+  // Sort the layers
+  // Vertical – Top to bottom
+  // Horizontal – Left to right
+  var sortedRects = rects.sort(function(a, b) {
+    if (vertical) {
+      return a.y() <= b.y() ? -1 : 1
+    } else {
+      return a.x() <= b.x() ? -1 : 1
+    }
+  })
+
   var frames = []
-  layers.forEach(function(sublayer, index) {
-    var rect = MSRect.rectWithRect(sublayer.frameForTransforms())
+  sortedRects.forEach(function(rect, index) {
 
     if (frames.length > 0) {
       var previous = frames[frames.length - 1]
