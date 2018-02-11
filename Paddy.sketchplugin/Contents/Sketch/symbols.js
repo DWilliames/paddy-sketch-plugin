@@ -89,6 +89,12 @@ function updateForSymbolInstance(symbol) {
         layer.hasFixedLeft = true
       }
 
+      // If the text layer is 'fixed', pin it to the right 'and' left, if it does have a fixed width
+      if (layer.isMemberOfClass(MSTextLayer) && layer.textBehaviour() == 1 && !layer.hasFixedWidth()) {
+        layer.hasFixedRight = true
+        layer.hasFixedLeft = true
+      }
+
     }
     if (!(layer.hasFixedTop() || layer.hasFixedBottom())) {
       layer.hasFixedTop = true
@@ -123,7 +129,10 @@ function updateForSymbolInstance(symbol) {
 
 
     layer.stringValue = symbolOverrides[id]
-    layer.textBehaviour = 0
+    if (ignoreWidth) {
+      layer.textBehaviour = 0
+    }
+
     layer.adjustFrameToFit()
 
     if ((maxTextWidth && layer.frame().width() > maxTextWidth) || ignoreWidth) {
