@@ -303,7 +303,6 @@ function buildTreeMap(layers) {
 
     // Add all it's children, if the layer was a group
     if (layer.isMemberOfClass(MSLayerGroup)) {
-      // TODO: Find a more optimised approach
       fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
     }
 
