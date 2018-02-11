@@ -25,6 +25,7 @@ function updateForSymbolInstance(symbol) {
 
   // Remember the current sizes
   var masterFrame = master.frame()
+  var originalSymbolWidth = symbol.frame().width()
   var originalBackgroundFrame = bg.frame()
   var originalWidth = bg.frame().width()
   var originalHeight = bg.frame().height()
@@ -71,6 +72,13 @@ function updateForSymbolInstance(symbol) {
       dependentObjectIDs = dependentLayers.objectIDsToIgnore
     }
   })
+
+
+  // In case the text is 'right aligned'
+  var maxWidthTextLayer = {
+    width: 0,
+    layer: null
+  }
 
 
   // Let's find out all the dependent layers
@@ -125,6 +133,11 @@ function updateForSymbolInstance(symbol) {
         x: parent.frame().x(),
         y: parent.frame().y()
       }
+    }
+
+    if (layer.frame().width() > maxWidthTextLayer.width) {
+      maxWidthTextLayer.width = layer.frame().width()
+      maxWidthTextLayer.layer = layer
     }
 
 
@@ -276,6 +289,15 @@ function updateForSymbolInstance(symbol) {
   takeIntoAccountStackViews = false
 
   updatePaddingForLayerBG(bg)
+
+
+  // If the max width text layer is right aligned – then resize the symbol from the right
+  if (maxWidthTextLayer.layer && maxWidthTextLayer.layer.textAlignment() == 1) {
+    print('Original width: ' + originalSymbolWidth)
+
+    var xDiff = originalSymbolWidth - symbol.frame().width()
+    symbol.frame().setX(symbol.frame().x() + xDiff)
+  }
 
   symbol.layerDidEndResize()
 }
