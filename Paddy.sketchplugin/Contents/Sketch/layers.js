@@ -269,6 +269,27 @@ function dependentLayersOfLayerIgnoringLayers(layer, objectIDsToIgnore) {
 }
 
 
+
+function getAllChildrenForGroup(group) {
+  var layers = []
+
+  group.layers().forEach(function(layer) {
+    if (layer.isMemberOfClass(MSShapePathLayer)) {
+      // Ignore Shape path layers
+      return
+    }
+
+    layers.push(layer)
+
+    if (layer.isMemberOfClass(MSLayerGroup)) {
+      layers = layers.concat(getAllChildrenForGroup(layer))
+    }
+  })
+
+  return layers
+}
+
+
 /**
  *
  */
@@ -279,6 +300,12 @@ function buildTreeMap(layers) {
   // Based on the selection, let's include all the ancestors of each selected item
   layers.forEach(function(layer) {
     fullDepthMap.push(layer)
+
+    // Add all it's children, if the layer was a group
+    if (layer.isMemberOfClass(MSLayerGroup)) {
+      // TODO: Find a more optimised approach
+      fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
+    }
 
     var parent = layer.parentGroup()
     while(parent) {
