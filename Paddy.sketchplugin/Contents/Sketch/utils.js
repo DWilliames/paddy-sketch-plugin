@@ -1,7 +1,7 @@
 
 // Whether to show logging or not
 var DEBUG = false
-var TIMER = true
+var TIMER = false
 
 /**
  * Log a bunch of values

@@ -237,7 +237,7 @@ function dependentLayersOfLayerIgnoringLayers(layer, objectIDsToIgnore) {
     var onTheLeft = (sFrame.minX() < lFrame.minX()) && layer.isMemberOfClass(MSTextLayer) && layer.textAlignment() == 1
     var diff = onTheLeft ? (lFrame.minX() - sFrame.maxX()) : (sFrame.minX() - lFrame.maxX())
 
-
+    // As far as I can tell; this seems to be the specific dimensions for this
     if (diff <= 20 && diff >= 0) {
       objectIDsToIgnore.push(sibling.objectID())
 
@@ -267,7 +267,6 @@ function dependentLayersOfLayerIgnoringLayers(layer, objectIDsToIgnore) {
   }
 
 }
-
 
 
 function getAllChildrenForGroup(group) {
