@@ -25,6 +25,7 @@ function updateForSymbolInstance(symbol) {
 
   // Remember the current sizes
   var masterFrame = master.frame()
+  var originalSymbolWidth = symbol.frame().width()
   var originalBackgroundFrame = bg.frame()
   var originalWidth = bg.frame().width()
   var originalHeight = bg.frame().height()
@@ -73,6 +74,13 @@ function updateForSymbolInstance(symbol) {
   })
 
 
+  // In case the text is 'right aligned'
+  var maxWidthTextLayer = {
+    width: 0,
+    layer: null
+  }
+
+
   // Let's find out all the dependent layers
   // That is, after changing the string value of a label; it moves other layers next to it
 
@@ -86,6 +94,12 @@ function updateForSymbolInstance(symbol) {
       if (layer.isMemberOfClass(MSTextLayer) && layer.textAlignment() == 1) {
         layer.hasFixedRight = true
       } else {
+        layer.hasFixedLeft = true
+      }
+
+      // If the text layer is 'fixed', pin it to the right 'and' left, if it does have a fixed width
+      if (layer.isMemberOfClass(MSTextLayer) && layer.textBehaviour() == 1 && !layer.hasFixedWidth()) {
+        layer.hasFixedRight = true
         layer.hasFixedLeft = true
       }
 
@@ -121,9 +135,17 @@ function updateForSymbolInstance(symbol) {
       }
     }
 
+    if (layer.frame().width() >= maxWidthTextLayer.width) {
+      maxWidthTextLayer.width = layer.frame().width()
+      maxWidthTextLayer.layer = layer
+    }
+
 
     layer.stringValue = symbolOverrides[id]
-    layer.textBehaviour = 0
+    if (ignoreWidth) {
+      layer.textBehaviour = 0
+    }
+
     layer.adjustFrameToFit()
 
     if ((maxTextWidth && layer.frame().width() > maxTextWidth) || ignoreWidth) {
@@ -267,6 +289,13 @@ function updateForSymbolInstance(symbol) {
   takeIntoAccountStackViews = false
 
   updatePaddingForLayerBG(bg)
+
+
+  // If the max width text layer is right aligned – then resize the symbol from the right
+  if (maxWidthTextLayer.layer && maxWidthTextLayer.layer.textAlignment() == 1) {
+    var xDiff = originalSymbolWidth - symbol.frame().width()
+    symbol.frame().setX(symbol.frame().x() + xDiff)
+  }
 
   symbol.layerDidEndResize()
 }

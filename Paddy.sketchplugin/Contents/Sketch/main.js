@@ -11,6 +11,7 @@ var selection, document, plugin, app, iconImage
 function onSetUp(context) {
   document = context.document
   plugin = context.plugin
+  coscript.setShouldKeepAround(true)
 }
 
 
@@ -186,11 +187,47 @@ function textChanged(context) {
 }
 
 
+
+// SELECTION
+
+// Store the properties of a layer when it is initially selected
+// Then we can see if they changed once the user deselects everything
+var initialSelectedProps = {}
+
 function selectionChanged(context) {
   startBenchmark()
 
   // Only run if nothing is now selected
-  if (context.actionContext.newSelection.length > 0) return
+  if (context.actionContext.newSelection.length > 0) {
+
+    initialSelectedProps = {}
+
+    context.actionContext.newSelection.forEach(function(layer) {
+      if (layer.isMemberOfClass(MSLayerGroup)) {
+
+        var frame = layer.frame()
+        var size = frame.size()
+        var origin = frame.origin()
+
+        // Group
+        initialSelectedProps[layer.objectID()] = {
+          layer: layer,
+          width: size.width,
+          height: size.height,
+          x: origin.x,
+          y: origin.y,
+          name: layer.name(),
+          parent: layer.parentGroup()
+        }
+      } else if (layer.isMemberOfClass(MSSymbolInstance)) {
+        initialSelectedProps[layer.objectID()] = {
+          layer: layer,
+          overrides: layer.overrides()
+        }
+      }
+    })
+    return
+  }
 
   log('RUN PLUGIN BECAUSE SELECTION CHANGED')
   document = context.actionContext.document
@@ -204,8 +241,48 @@ function selectionChanged(context) {
   var uniqueLayers = []
   context.actionContext.oldSelection.forEach(function(layer) {
     // Ignore unique siblings, if it is a Symbol instance, or a layer group
-    if (layer.isMemberOfClass(MSSymbolInstance) || layer.isMemberOfClass(MSLayerGroup)) {
-      uniqueLayers.push(layer)
+    if (layer.isMemberOfClass(MSSymbolInstance)) {
+      // Only add a symbol, if it actually changed props
+      var layerProps = initialSelectedProps[layer.objectID()]
+
+      if (layerProps) {
+        if (layerProps.overrides != layer.overrides()) {
+          uniqueLayers.push(layer)
+        }
+      } else {
+        uniqueLayers.push(layer)
+      }
+
+    } else if (layer.isMemberOfClass(MSLayerGroup)) {
+      // Only add a group, if it actually changed props
+      var layerProps = initialSelectedProps[layer.objectID()]
+
+      if (layerProps) {
+        var name = layerProps.name
+        var frame = layer.frame()
+
+        var sameWidth = (layerProps.width == frame.size().width)
+        var sameHeight = (layerProps.height == frame.size().height)
+
+        var sameOrigin = (layerProps.x == frame.origin().x && layerProps.y == frame.origin().y)
+
+        if (layerProps.parent && !layer.parentGroup()) {
+          // Doesn't have a parent anymore... must've been deleted
+          uniqueLayers.push(layerProps.parent)
+        } else if (name != layer.name() || !(sameHeight && sameWidth)) {
+          // Name or sizing changed
+          uniqueLayers.push(layer)
+        } else if (!sameOrigin) {
+          // Origin moved – then it's parent mmay need to update
+          uniqueLayers.push(layer.parentGroup())
+        } else {
+          // Props haven't changed
+        }
+      } else {
+        // Layer has no previous props
+        uniqueLayers.push(layer)
+      }
+
     } else if (!doesArrayContainSibling(uniqueLayers, layer)) {
       uniqueLayers.push(layer)
     }

@@ -237,7 +237,7 @@ function dependentLayersOfLayerIgnoringLayers(layer, objectIDsToIgnore) {
     var onTheLeft = (sFrame.minX() < lFrame.minX()) && layer.isMemberOfClass(MSTextLayer) && layer.textAlignment() == 1
     var diff = onTheLeft ? (lFrame.minX() - sFrame.maxX()) : (sFrame.minX() - lFrame.maxX())
 
-
+    // As far as I can tell; this seems to be the specific dimensions for this
     if (diff <= 20 && diff >= 0) {
       objectIDsToIgnore.push(sibling.objectID())
 
@@ -269,6 +269,26 @@ function dependentLayersOfLayerIgnoringLayers(layer, objectIDsToIgnore) {
 }
 
 
+function getAllChildrenForGroup(group) {
+  var layers = []
+
+  group.layers().forEach(function(layer) {
+    if (layer.isMemberOfClass(MSShapePathLayer)) {
+      // Ignore Shape path layers
+      return
+    }
+
+    layers.push(layer)
+
+    if (layer.isMemberOfClass(MSLayerGroup)) {
+      layers = layers.concat(getAllChildrenForGroup(layer))
+    }
+  })
+
+  return layers
+}
+
+
 /**
  *
  */
@@ -279,6 +299,11 @@ function buildTreeMap(layers) {
   // Based on the selection, let's include all the ancestors of each selected item
   layers.forEach(function(layer) {
     fullDepthMap.push(layer)
+
+    // Add all it's children, if the layer was a group
+    if (layer.isMemberOfClass(MSLayerGroup)) {
+      fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
+    }
 
     var parent = layer.parentGroup()
     while(parent) {

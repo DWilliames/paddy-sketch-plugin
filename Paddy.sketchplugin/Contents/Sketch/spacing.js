@@ -257,46 +257,48 @@ function applySpacingToGroup(spacing, groupLayer) {
   })
 
   var previous = sortedLayers[0]
-  var minX = frameForLayer(previous).minX()
-  var minY = frameForLayer(previous).minY()
-  var maxX = frameForLayer(previous).maxX()
-  var maxY = frameForLayer(previous).maxY()
+
+  var previousFrame = frameForLayer(previous)
+  var minX = previousFrame.minX()
+  var minY = previousFrame.minY()
+  var maxX = previousFrame.maxX()
+  var maxY = previousFrame.maxY()
 
   sortedLayers.forEach(function(layer) {
     if (layer == previous) return
+
+    var previousFrame = frameForLayer(previous)
+    var frame = frameForLayer(layer)
 
     // The amount to offset the layer
     var x = 0
     var y = 0
 
     if (spacing.layout == "v") {
-      y = spacing.space - frameForLayer(layer).minY() + frameForLayer(previous).maxY()
+      y = spacing.space - frame.minY() + previousFrame.maxY()
     } else if (spacing.layout == "h") {
-      x = spacing.space - frameForLayer(layer).minX() + frameForLayer(previous).maxX()
+      x = spacing.space - frame.minX() + previousFrame.maxX()
     }
 
     offsetLayer(layer, x, y)
     previous = layer
 
 
-    if(frameForLayer(previous).minX() < minX)
-      minX = frameForLayer(previous).minX()
+    if(previousFrame.minX() < minX)
+      minX = previousFrame.minX()
 
-    if(frameForLayer(previous).minY() < minY)
-      minY = frameForLayer(previous).minY()
+    if(previousFrame.minY() < minY)
+      minY = previousFrame.minY()
 
-    if(frameForLayer(previous).maxX() > maxX)
-      maxX = frameForLayer(previous).maxX()
+    if(previousFrame.maxX() > maxX)
+      maxX = previousFrame.maxX()
 
-    if(frameForLayer(previous).maxY() < maxY)
-      maxY = frameForLayer(previous).maxY()
+    if(previousFrame.maxY() < maxY)
+      maxY = previousFrame.maxY()
 
   })
 
   if (spacing.align) {
-
-
-
     log(2, 'Will align layers', layers.map(function(layer) {
       return layer.name() + "\n"
     }))
@@ -307,19 +309,14 @@ function applySpacingToGroup(spacing, groupLayer) {
       } else if (spacing.align == "r") {
         layer.frame().setMaxX(maxX)
       } else if (spacing.align == "c") {
-        var mid = minX + (maxX - minX) / 2
+        var mid = minX + (maxX - minX) / 2.0
         layer.frame().setMidX(mid)
-      }
-    })
-
-  // } else if (spacing.layout == "h") {
-    layers.forEach(function(layer) {
-      if (spacing.align == "t") {
+      } else if (spacing.align == "t") {
         layer.frame().setY(minY)
       } else if (spacing.align == "b") {
         layer.frame().setMaxY(maxY)
       } else if (spacing.align == "m") {
-        var mid = minY + (maxY - minY) / 2
+        var mid = minY + (maxY - minY) / 2.0
         layer.frame().setMidY(mid)
       }
     })
@@ -328,113 +325,11 @@ function applySpacingToGroup(spacing, groupLayer) {
 
 
   log(2, 'Sorted layers', sortedLayers)
-  groupLayer.layerDidEndResize()
 
   // Reset the position to be the same
   groupLayer.frame().setX(beginningX)
   groupLayer.frame().setY(beginningY)
-}
 
-
-function applySpacingToGroupIgnoringBGLayer(spacing, groupLayer, bg) {
-  if (!spacing) return
-
-  // Valid layers for spacing
-  var layers = filter(groupLayer.layers(), function(layer) {
-    if (layer == bg && layerHasPadding(bg))
-      return false
-    if (layer.isMemberOfClass(MSArtboardGroup))
-      return false
-    if (layer.isMemberOfClass(MSSliceLayer))
-      return false
-    if (layer.name().startsWith('-'))
-      return false
-    return true
-  })
-
-  log(2, 'Will space layers', layers.map(function(layer) {
-    return layer.name() + "\n"
-  }))
-
-  var sortedLayers = layers.sort(function(a, b) {
-    if (spacing.layout == "v") {
-      return a.frameForTransforms().origin.y <= b.frameForTransforms().origin.y ? -1 : 1
-    } else if (spacing.layout == "h") {
-      return a.frameForTransforms().origin.x <= b.frameForTransforms().origin.x ? -1 : 1
-    }
-  })
-
-  var previous = sortedLayers[0]
-  var minX = frameForLayer(previous).minX()
-  var minY = frameForLayer(previous).minY()
-  var maxX = frameForLayer(previous).maxX()
-  var maxY = frameForLayer(previous).maxY()
-
-  sortedLayers.forEach(function(layer) {
-    if (layer == previous) return
-
-    // The amount to offset the layer
-    var x = 0
-    var y = 0
-
-    if (spacing.layout == "v") {
-      y = spacing.space - frameForLayer(layer).minY() + frameForLayer(previous).maxY()
-    } else if (spacing.layout == "h") {
-      x = spacing.space - frameForLayer(layer).minX() + frameForLayer(previous).maxX()
-    }
-
-    offsetLayer(layer, x, y)
-    previous = layer
-
-
-    if(frameForLayer(previous).minX() < minX)
-      minX = frameForLayer(previous).minX()
-
-    if(frameForLayer(previous).minY() < minY)
-      minY = frameForLayer(previous).minY()
-
-    if(frameForLayer(previous).maxX() > maxX)
-      maxX = frameForLayer(previous).maxX()
-
-    if(frameForLayer(previous).maxY() < maxY)
-      maxY = frameForLayer(previous).maxY()
-
-  })
-
-  if (spacing.align) {
-
-    log(2, 'Will align layers', layers.map(function(layer) {
-      return layer.name() + "\n"
-    }))
-    if (spacing.layout == "v") {
-      layers.forEach(function(layer) {
-        if (spacing.align == "l") {
-          layer.frame().setX(minX)
-        } else if (spacing.align == "r") {
-          layer.frame().setMaxX(maxX)
-        } else if (spacing.align == "c") {
-          var mid = minX + (maxX - minX) / 2
-          layer.frame().setMidX(mid)
-        }
-      })
-
-    } else if (spacing.layout == "h") {
-      layers.forEach(function(layer) {
-        if (spacing.align == "t") {
-          layer.frame().setY(minY)
-        } else if (spacing.align == "b") {
-          layer.frame().setMaxX(maxY)
-        } else if (spacing.align == "m") {
-          var mid = minY + (maxY - minY) / 2
-          layer.frame().setMidY(mid)
-        }
-      })
-    }
-  }
-
-
-
-  log(2, 'Sorted layers', sortedLayers)
   groupLayer.layerDidEndResize()
 }
 
@@ -447,32 +342,4 @@ function frameForLayer(layer) {
 function offsetLayer(layer, x, y) {
   layer.frame().setX(layer.frame().x() + x)
   layer.frame().setY(layer.frame().y() + y)
-
-  // Since the layer has moved, it's parent's frame may need to be updated
-  var parent = layer.parentGroup()
-  if (parent) {
-    parent.resizeToFitChildrenWithOption(0)
-  }
 }
-
-//
-// actionWithType(context,"MSAlignLayersBottomAction").doPerformAction(nil);
-//
-// MSAlignLayersTopAction
-// MSAlignLayersLeftAction
-// MSAlignLayersRightAction
-// MSAlignLayersBottomAction
-// MSAlignLayersCenterAction
-// MSAlignLayersMiddleAction
-//
-// function actionWithType(context,type) {
-// 	var controller = context.document.actionsController();
-//
-// 	if (controller.actionWithName) {
-// 		return controller.actionWithName(type);
-// 	} else if (controller.actionWithID) {
-// 		return controller.actionWithID(type);
-// 	} else {
-// 		return controller.actionForID(type);
-// 	}
-// }
