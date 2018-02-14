@@ -11,7 +11,10 @@ var selection, document, plugin, app, iconImage
 function onSetUp(context) {
   document = context.document
   plugin = context.plugin
-  coscript.setShouldKeepAround(true)
+
+  if (PERSISTENT) {
+    coscript.setShouldKeepAround(true)
+  }
 }
 
 
@@ -222,7 +225,13 @@ function selectionChanged(context) {
       } else if (layer.isMemberOfClass(MSSymbolInstance)) {
         initialSelectedProps[layer.objectID()] = {
           layer: layer,
-          overrides: layer.overrides()
+          overrides: layer.overrides(),
+          parent: layer.parentGroup()
+        }
+      } else {
+        initialSelectedProps[layer.objectID()] = {
+          layer: layer,
+          parent: layer.parentGroup()
         }
       }
     })
@@ -240,10 +249,15 @@ function selectionChanged(context) {
   // Therefore, there shouldn't be more than one sibling.
   var uniqueLayers = []
   context.actionContext.oldSelection.forEach(function(layer) {
-    // Ignore unique siblings, if it is a Symbol instance, or a layer group
-    if (layer.isMemberOfClass(MSSymbolInstance)) {
+
+    var layerProps = initialSelectedProps[layer.objectID()]
+
+    if (layerProps && layerProps.parent && !layer.parentGroup()) {
+      // Doesn't have a parent anymore... must've been deleted
+      uniqueLayers.push(layerProps.parent)
+    } else if (layer.isMemberOfClass(MSSymbolInstance)) {
+      // Ignore unique siblings, if it is a Symbol instance, or a layer group
       // Only add a symbol, if it actually changed props
-      var layerProps = initialSelectedProps[layer.objectID()]
 
       if (layerProps) {
         if (layerProps.overrides != layer.overrides()) {
@@ -255,7 +269,6 @@ function selectionChanged(context) {
 
     } else if (layer.isMemberOfClass(MSLayerGroup)) {
       // Only add a group, if it actually changed props
-      var layerProps = initialSelectedProps[layer.objectID()]
 
       if (layerProps) {
         var name = layerProps.name
@@ -266,10 +279,7 @@ function selectionChanged(context) {
 
         var sameOrigin = (layerProps.x == frame.origin().x && layerProps.y == frame.origin().y)
 
-        if (layerProps.parent && !layer.parentGroup()) {
-          // Doesn't have a parent anymore... must've been deleted
-          uniqueLayers.push(layerProps.parent)
-        } else if (name != layer.name() || !(sameHeight && sameWidth)) {
+        if (name != layer.name() || !(sameHeight && sameWidth)) {
           // Name or sizing changed
           uniqueLayers.push(layer)
         } else if (!sameOrigin) {

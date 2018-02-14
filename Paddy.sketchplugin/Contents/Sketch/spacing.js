@@ -1,11 +1,11 @@
 @import 'utils.js'
 
 /*
-Example spacing object:
+Example spacing object: [20v]
 
 {
-  vertical: 10,
-  horizontal: 20
+  layout: vertical,
+  space: 20
 }
 
 [left]
@@ -75,8 +75,13 @@ function layerHasSpacing(layer) {
 function layerSpacingString(layer) {
   if (!layer) return
 
-  var regex = /\[(.*)\]/g
-  return firstRegexMatch(regex, layer.name())
+  var split = layer.name().split('[')
+  var section = split[split.length - 1]
+  split = section.split(']')
+  return split[0]
+
+  // var regex = /.*\[([^]]+)\]/g
+  // return firstRegexMatch(regex, layer.name())
 }
 
 

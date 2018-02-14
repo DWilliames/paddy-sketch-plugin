@@ -2,6 +2,7 @@
 // Whether to show logging or not
 var DEBUG = false
 var TIMER = false
+var PERSISTENT = false
 
 /**
  * Log a bunch of values
