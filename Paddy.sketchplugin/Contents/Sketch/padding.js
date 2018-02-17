@@ -82,13 +82,8 @@ function layerHasPadding(layer) {
 function layerPaddingString(layer) {
   if (!layer) return
 
-  var split = layer.name().split('[')
-  var section = split[split.length - 1]
-  split = section.split(']')
-  return split[0]
-
-  // var regex = /.*\[([^]]+)\]/g
-  // return firstRegexMatch(regex, layer.name())
+  var regex = /.*\[(.*)\]/g
+  return firstRegexMatch(regex, layer.name())
 }
 
 
@@ -308,4 +303,18 @@ function applyPaddingToLayerWithContainerRect(padding, layer, containerRect) {
   layer.frame().setHeight(height)
 
   layer.layerDidEndResize()
+}
+
+
+function getAssumedPaddingForBackgroundLayer(layer) {
+  var containerRect = getContainerFrameForBGLayer(layer)
+
+  var padding = {}
+
+  padding.left = containerRect.x() - layer.frame().x()
+  padding.right = (layer.frame().x() + layer.frame().width()) - (containerRect.x() + containerRect.width())
+  padding.top = containerRect.y() - layer.frame().y()
+  padding.bottom = (layer.frame().y() + layer.frame().height()) - (containerRect.y() + containerRect.height())
+
+  return padding
 }

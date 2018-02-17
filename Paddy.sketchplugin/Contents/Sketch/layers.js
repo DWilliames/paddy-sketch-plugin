@@ -22,13 +22,9 @@ function getContainerFrameForBGLayer(bg) {
     return true
   })
 
-  // takeIntoAccountStackViews = true
-
   var frames = validLayers.map(function(layer) {
     return rectForLayer(layer)
   })
-
-  // takeIntoAccountStackViews = false
 
   return MSRect.rectWithUnionOfRects(frames)
 }
@@ -40,7 +36,11 @@ var takeIntoAccountStackViews = true
 
 // Return the rect for a layer as an MSRect
 function rectForLayer(layer) {
-  if (!takeIntoAccountStackViews || !layerIsStackView(layer)) {
+  if (!layer) {
+    return
+  }
+
+  if (!alCommand || !takeIntoAccountStackViews || !layerIsStackView(layer)) {
     return MSRect.rectWithRect(layer.frameForTransforms())
   }
 
@@ -198,6 +198,10 @@ function containsLayerID(array, element) {
 
 
 function dependentLayersOfLayerIgnoringLayers(layer, objectIDsToIgnore) {
+  if (!layer) {
+    return
+  }
+
   if (!objectIDsToIgnore) {
     objectIDsToIgnore = []
   }
@@ -300,10 +304,10 @@ function buildTreeMap(layers) {
   layers.forEach(function(layer) {
     fullDepthMap.push(layer)
 
-    // Add all it's children, if the layer was a group
-    if (layer.isMemberOfClass(MSLayerGroup)) {
-      fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
-    }
+    // // Add all it's children, if the layer was a group
+    // if (layer.isMemberOfClass(MSLayerGroup)) {
+    //   fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
+    // }
 
     var parent = layer.parentGroup()
     while(parent) {

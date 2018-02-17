@@ -10,11 +10,20 @@
   "bundleVersion": 1,
   "commands": [
     {
-      "name": "Padding for selection",
-      "identifier": "applyPadding",
+      "name": "Enter padding for selection",
+      "identifier": "promptToApplyPadding",
       "shortcut": "control alt p",
       "script": "main.js",
-      "handler": "applyPadding",
+      "handler": "promptToApplyPadding",
+      "description": "Apply padding to the currently selected layers",
+      "icon": "Icons/padding.png"
+    },
+    {
+      "name": "Auto-fill padding for selection",
+      "identifier": "autoApplyPadding",
+      "shortcut": "command p",
+      "script": "main.js",
+      "handler": "autoApplyPadding",
       "description": "Apply padding to the currently selected layers",
       "icon": "Icons/padding.png"
     },
@@ -39,7 +48,8 @@
   ],
   "menu": {
     "items": [
-      "applyPadding",
+      "promptToApplyPadding",
+      "autoApplyPadding",
       "-",
       "applySpacing"
     ]

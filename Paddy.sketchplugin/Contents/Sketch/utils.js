@@ -1,8 +1,8 @@
 
 // Whether to show logging or not
-var DEBUG = false
-var TIMER = false
-var PERSISTENT = false
+var DEBUG = false // FALSE for prod
+var TIMER = false // FALSE for prod
+var PERSISTENT = true // TRUE for prod
 
 /**
  * Log a bunch of values
