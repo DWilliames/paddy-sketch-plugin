@@ -91,7 +91,10 @@ function updateForSymbolInstance(symbol) {
     var id = layer.objectID()
 
     if (!(layer.hasFixedLeft() || layer.hasFixedRight())) {
-      if (layer.isMemberOfClass(MSTextLayer) && layer.textAlignment() == 1) {
+      if (layer.textAlignment() == 1) {
+        layer.hasFixedRight = true
+      } else if (layer.textAlignment() == 2) {
+        layer.hasFixedLeft = true
         layer.hasFixedRight = true
       } else {
         layer.hasFixedLeft = true

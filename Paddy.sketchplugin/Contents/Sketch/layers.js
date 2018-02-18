@@ -22,13 +22,15 @@ function getContainerFrameForBGLayer(bg) {
     return true
   })
 
-  // takeIntoAccountStackViews = true
+  // Get the rect for each layer, only if it exists
+  var frames = []
 
-  var frames = validLayers.map(function(layer) {
-    return rectForLayer(layer)
+  validLayers.forEach(function(layer) {
+    var rect = rectForLayer(layer, true)
+    if (rect) {
+      frames.push(rect)
+    }
   })
-
-  // takeIntoAccountStackViews = false
 
   return MSRect.rectWithUnionOfRects(frames)
 }
@@ -39,9 +41,33 @@ var takeIntoAccountStackViews = true
 
 
 // Return the rect for a layer as an MSRect
-function rectForLayer(layer) {
-  if (!takeIntoAccountStackViews || !layerIsStackView(layer)) {
-    return MSRect.rectWithRect(layer.frameForTransforms())
+function rectForLayer(layer, ignoreWithPrefix) {
+  if (!layer || (ignoreWithPrefix && layer.name().startsWith('-'))) {
+    return
+  }
+
+  if (!alCommand || !takeIntoAccountStackViews || !layerIsStackView(layer)) {
+
+    if (layer.isMemberOfClass(MSLayerGroup) && ignoreWithPrefix) {
+
+      var frames = []
+
+      layer.layers().forEach(function(layer) {
+        var rect = rectForLayer(layer, true)
+
+        if (rect) {
+          frames.push(rect)
+        }
+      })
+
+      var rect = MSRect.rectWithUnionOfRects(frames)
+      rect.x = rect.x() + layer.frame().x()
+      rect.y = rect.y() + layer.frame().y()
+
+      return rect
+    } else {
+      return MSRect.rectWithRect(layer.frameForTransforms())
+    }
   }
 
   // Calculate based on stack view
@@ -64,7 +90,7 @@ function rectForLayer(layer) {
 
   // Map each layer to its rect
   var rects = layers.map(function(layer) {
-    return rectForLayer(layer)
+    return rectForLayer(layer, ignoreWithPrefix)
   })
 
   // Sort the layers
@@ -113,7 +139,7 @@ function getBackgroundForLayer(layer) {
   var layers = layer.parentGroup() ? layer.parentGroup().layers() : null
 
   // If it's a group or Artboard; check it's children
-  if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup) || layer.isMemberOfClass(MSSymbolMaster)) {
+  if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup) || layer.isMemberOfClass(MSSymbolMaster) || layer.isMemberOfClass(MSPage)) {
     layers = layer.layers()
   } else if (layer.isMemberOfClass(MSSymbolInstance)) {
     // return backgroundLayerForSymbol(layer)
@@ -198,6 +224,10 @@ function containsLayerID(array, element) {
 
 
 function dependentLayersOfLayerIgnoringLayers(layer, objectIDsToIgnore) {
+  if (!layer) {
+    return
+  }
+
   if (!objectIDsToIgnore) {
     objectIDsToIgnore = []
   }
@@ -300,10 +330,10 @@ function buildTreeMap(layers) {
   layers.forEach(function(layer) {
     fullDepthMap.push(layer)
 
-    // Add all it's children, if the layer was a group
-    if (layer.isMemberOfClass(MSLayerGroup)) {
-      fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
-    }
+    // // Add all it's children, if the layer was a group
+    // if (layer.isMemberOfClass(MSLayerGroup)) {
+    //   fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
+    // }
 
     var parent = layer.parentGroup()
     while(parent) {

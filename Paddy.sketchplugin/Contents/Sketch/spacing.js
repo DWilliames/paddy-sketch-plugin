@@ -1,11 +1,12 @@
 @import 'utils.js'
 
 /*
-Example spacing object:
+Example spacing object: [20v]
 
 {
-  vertical: 10,
-  horizontal: 20
+  layout: vertical,
+  space: 20,
+  align: [c, m]
 }
 
 [left]
@@ -75,7 +76,7 @@ function layerHasSpacing(layer) {
 function layerSpacingString(layer) {
   if (!layer) return
 
-  var regex = /\[(.*)\]/g
+  var regex = /.*\[(.*)\]/g
   return firstRegexMatch(regex, layer.name())
 }
 
@@ -105,7 +106,7 @@ function spacingToString(spacing) {
       spacingString += ' '
     }
 
-    spacingString += spacing.align
+    spacingString += spacing.align.join(' ')
   }
 
   return spacingString
@@ -121,63 +122,37 @@ function spacingFromString(string) {
   if (!string || string == '')
     return null
 
+  var spacing = {}
+
   var values = string.split(' ')
 
-  // Possibly alignment first...
-  var alignment = simplifyAlignment(values[0])
-  if (alignment) {
-    return spacing = {
-      align: alignment
-    }
-  }
-
+  // Check if first value is 'spacing'
   var spacingLayout = values[0]
 
   var layout = spacingLayout.slice(-1)
-  if (!(layout == 'v' || layout == 'h')) {
-    return
+  if (layout == 'v' || layout == 'h') {
+    // Spacing exists
+    var space = spacingLayout.substring(0, spacingLayout.length - 1)
+
+    log(1, 'Layout', layout)
+    log(1, 'Spacing', space)
+
+    spacing.layout = layout
+    spacing.space = space
+
+    values.shift() // Remove the first element
   }
 
-  var space = spacingLayout.substring(0, spacingLayout.length - 1)
-
-  log(1, 'Layout', layout)
-  log(1, 'Spacing', space)
-
-  var spacing = {
-    layout: layout,
-    space: space,
-  }
-
-  log(1, 'Values', values)
-  log(1, 'Values count', values.length)
-
-  if (values.length > 1) {
-    var alignment = values[1]
-
-    if (alignment == "left") {
-      alignment = "l"
-    }
-    if (alignment == "right") {
-      alignment = "r"
-    }
-    if (alignment == "top") {
-      alignment = "t"
-    }
-    if (alignment == "bottom") {
-      alignment = "b"
-    }
-    if (alignment == "center" || alignment == "centre" || alignment == "h" || alignment == "horizontally") {
-      alignment = "c"
-    }
-    if (alignment == "middle" || alignment == "v" || alignment == "vertically") {
-      alignment = "m"
-    }
-
-    log(1, 'Alignment', alignment)
-
+  var alignments = []
+  values.forEach(function(value) {
+    var alignment = simplifyAlignment(value)
     if (alignment) {
-      spacing.align = alignment
+      alignments.push(alignment)
     }
+  })
+
+  if (alignments.length > 0) {
+    spacing.align = alignments
   }
 
   return spacing
@@ -244,6 +219,11 @@ function applySpacingToGroup(spacing, groupLayer) {
     return true
   })
 
+  if (layers.length == 0) {
+    log(2, 'No layers to space')
+    return
+  }
+
   log(2, 'Will space layers', layers.map(function(layer) {
     return layer.name() + "\n"
   }))
@@ -256,9 +236,10 @@ function applySpacingToGroup(spacing, groupLayer) {
     }
   })
 
-  var previous = sortedLayers[0]
 
+  var previous = sortedLayers[0]
   var previousFrame = frameForLayer(previous)
+
   var minX = previousFrame.minX()
   var minY = previousFrame.minY()
   var maxX = previousFrame.maxX()
@@ -269,7 +250,6 @@ function applySpacingToGroup(spacing, groupLayer) {
 
     var previousFrame = frameForLayer(previous)
     var frame = frameForLayer(layer)
-
     // The amount to offset the layer
     var x = 0
     var y = 0
@@ -304,18 +284,18 @@ function applySpacingToGroup(spacing, groupLayer) {
     }))
     // if (spacing.layout == "v") {
     layers.forEach(function(layer) {
-      if (spacing.align == "l") {
+      if (arrayContains(spacing.align, 'l')) {
         layer.frame().setX(minX)
-      } else if (spacing.align == "r") {
+      } if (arrayContains(spacing.align, 'r')) {
         layer.frame().setMaxX(maxX)
-      } else if (spacing.align == "c") {
+      } if (arrayContains(spacing.align, 'c')) {
         var mid = minX + (maxX - minX) / 2.0
         layer.frame().setMidX(mid)
-      } else if (spacing.align == "t") {
+      } if (arrayContains(spacing.align, 't')) {
         layer.frame().setY(minY)
-      } else if (spacing.align == "b") {
+      } if (arrayContains(spacing.align, 'b')) {
         layer.frame().setMaxY(maxY)
-      } else if (spacing.align == "m") {
+      } if (arrayContains(spacing.align, 'm')) {
         var mid = minY + (maxY - minY) / 2.0
         layer.frame().setMidY(mid)
       }
@@ -333,7 +313,15 @@ function applySpacingToGroup(spacing, groupLayer) {
   groupLayer.layerDidEndResize()
 }
 
+
+function arrayContains(array, value) {
+  return array.indexOf(value) != -1
+}
+
+
 function frameForLayer(layer) {
+  if (!layer) return
+
   return MSRect.rectWithRect(layer.frameForTransforms())
 }
 

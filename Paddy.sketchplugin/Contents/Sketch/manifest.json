@@ -4,18 +4,27 @@
   "author": "David Williames",
   "homepage": "https://github.com/DWilliames/paddy-sketch-plugin",
   "appcast": "https://raw.githubusercontent.com/DWilliames/paddy-sketch-plugin/master/.appcast.xml",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "identifier": "com.davidwilliames.sketch-plugin.paddy",
   "compatibleVersion": 47,
   "bundleVersion": 1,
   "commands": [
     {
-      "name": "Padding for selection",
-      "identifier": "applyPadding",
+      "name": "Enter padding for selection",
+      "identifier": "promptToApplyPadding",
       "shortcut": "control alt p",
       "script": "main.js",
-      "handler": "applyPadding",
-      "description": "Apply padding to the currently selected layers",
+      "handler": "promptToApplyPadding",
+      "description": "Enter padding amount to the currently selected layers",
+      "icon": "Icons/padding.png"
+    },
+    {
+      "name": "Imply padding for selection",
+      "identifier": "autoApplyPadding",
+      "shortcut": "command p",
+      "script": "main.js",
+      "handler": "autoApplyPadding",
+      "description": "Apply implied padding to the currently selected layers",
       "icon": "Icons/padding.png"
     },
     {
@@ -39,7 +48,8 @@
   ],
   "menu": {
     "items": [
-      "applyPadding",
+      "promptToApplyPadding",
+      "autoApplyPadding",
       "-",
       "applySpacing"
     ]
