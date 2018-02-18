@@ -22,8 +22,13 @@ function getContainerFrameForBGLayer(bg) {
     return true
   })
 
-  var frames = validLayers.map(function(layer) {
-    return rectForLayer(layer)
+  var frames = []
+
+  validLayers.forEach(function(layer) {
+    var rect = rectForLayer(layer, true)
+    if (rect) {
+      frames.push(rect)
+    }
   })
 
   return MSRect.rectWithUnionOfRects(frames)
@@ -35,13 +40,33 @@ var takeIntoAccountStackViews = true
 
 
 // Return the rect for a layer as an MSRect
-function rectForLayer(layer) {
-  if (!layer) {
+function rectForLayer(layer, ignoreWithPrefix) {
+  if (!layer || (ignoreWithPrefix && layer.name().startsWith('-'))) {
     return
   }
 
   if (!alCommand || !takeIntoAccountStackViews || !layerIsStackView(layer)) {
-    return MSRect.rectWithRect(layer.frameForTransforms())
+
+    if (layer.isMemberOfClass(MSLayerGroup) && ignoreWithPrefix) {
+
+      var frames = []
+
+      layer.layers().forEach(function(layer) {
+        var rect = rectForLayer(layer, true)
+
+        if (rect) {
+          frames.push(rect)
+        }
+      })
+
+      var rect = MSRect.rectWithUnionOfRects(frames)
+      rect.x = rect.x() + layer.frame().x()
+      rect.y = rect.y() + layer.frame().y()
+
+      return rect
+    } else {
+      return MSRect.rectWithRect(layer.frameForTransforms())
+    }
   }
 
   // Calculate based on stack view
@@ -64,7 +89,7 @@ function rectForLayer(layer) {
 
   // Map each layer to its rect
   var rects = layers.map(function(layer) {
-    return rectForLayer(layer)
+    return rectForLayer(layer, ignoreWithPrefix)
   })
 
   // Sort the layers

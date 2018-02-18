@@ -15,16 +15,16 @@
       "shortcut": "control alt p",
       "script": "main.js",
       "handler": "promptToApplyPadding",
-      "description": "Apply padding to the currently selected layers",
+      "description": "Enter padding amount to the currently selected layers",
       "icon": "Icons/padding.png"
     },
     {
-      "name": "Auto-fill padding for selection",
+      "name": "Imply padding for selection",
       "identifier": "autoApplyPadding",
       "shortcut": "command p",
       "script": "main.js",
       "handler": "autoApplyPadding",
-      "description": "Apply padding to the currently selected layers",
+      "description": "Apply implied padding to the currently selected layers",
       "icon": "Icons/padding.png"
     },
     {
