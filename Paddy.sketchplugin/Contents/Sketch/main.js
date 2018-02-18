@@ -348,7 +348,7 @@ function selectionChanged(context) {
  * Update all padding for Background layers relevant to a layer
  */
 function updatePaddingAndSpacingForLayer(layer) {
-  if (!layer || layer.isMemberOfClass(MSPage)) return
+  if (!layer) return
   log('Updating for layer: ' + layer.name(), layer)
 
   // GROUPS = Spacing
@@ -414,6 +414,7 @@ function updatePaddingAndSpacingForLayer(layer) {
  * based on the padding stored in its name
  */
 function updatePaddingForLayerBG(bg) {
+  log(1, 'Updating padding with BG', bg)
   if (!bg) return
 
   var padding = getPaddingFromLayer(bg)

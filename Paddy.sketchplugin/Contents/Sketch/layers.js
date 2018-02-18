@@ -22,6 +22,7 @@ function getContainerFrameForBGLayer(bg) {
     return true
   })
 
+  // Get the rect for each layer, only if it exists
   var frames = []
 
   validLayers.forEach(function(layer) {
@@ -138,7 +139,7 @@ function getBackgroundForLayer(layer) {
   var layers = layer.parentGroup() ? layer.parentGroup().layers() : null
 
   // If it's a group or Artboard; check it's children
-  if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup) || layer.isMemberOfClass(MSSymbolMaster)) {
+  if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup) || layer.isMemberOfClass(MSSymbolMaster) || layer.isMemberOfClass(MSPage)) {
     layers = layer.layers()
   } else if (layer.isMemberOfClass(MSSymbolInstance)) {
     // return backgroundLayerForSymbol(layer)
