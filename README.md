@@ -51,7 +51,7 @@ There are some similar plugins out there that do some of the features of this pl
 
 * **Automatic:** Most other plugins require a keyboard shortcut for them to be applied, or re-applied. This is all done automatically as you manipulate your layers; simply deselect everything, and will be updated.
 * **Visible properties:** It's easy to scan your layer list to see what padding / spacing is applied to your layers and groups; without the need to select them individually. This is because all the properties are set via the layer's name.
-* **No special data manipulation:** This simply resizes and moves your layers to optimal positions – it doesn't turn your groups into a special 'Stack group' or something; so other people or programs can read the Sketch file perfectly fine, without the need for this plugin too.
+* **No special data manipulation:** This simply resizes and moves your layers to optimal positions – it doesn't turn your groups into a special 'Stack group' or something; so other people or programs such as Zeplin, can read the Sketch file perfectly fine, without the need for this plugin too.
 * **Lightweight:** It just does a couple of core things – it's not bloated with a bunch of unused features.
 
 ---
@@ -78,7 +78,9 @@ Examples:
   * bottom padding is `15`
   * left padding is `20`
 
-Run the plugin command **'Apply padding to selection'** or **`Control + Alt + p`** to bring up an input field, to save padding to all your selected layers easier.
+Run the plugin command **'Enter padding for selection'** or **`Control + Alt + p`** to bring up an input field, to save padding to all your selected layers easier.
+
+If you don't want to be prompted to enter the specified padding, and instead want it to be automatically inferred from what it already is – run the command **'Imply padding for selection'** or **`Command + p`**.
 
 ![Padding example](.images/GIFs/padding.gif)
 
@@ -159,6 +161,12 @@ Run the plugin command **'Apply spacing to selection'** or **`Control + Alt + Co
 
 ![Spacing example](.images/GIFs/spacing.gif)
 
+### Spacing in symbols
+
+Let's talk about spacing in symbols. You can layout your elements with 'spacing' within your Master symbol artboard, if that makes things easier... however, it will not maintain the spacing after overriding the symbol. This is simply not possible without doing some weird data manipulation, which would break viewing it in other programs such as Zeplin.
+
+If however, you do not care about being compatible with programs such as Zeplin; you can you [Anima's AutoLayout plugin](https://animaapp.github.io) with 'Stack groups'. Paddy will take Stack groups into account when resizing a symbol; even with its overrides. Which in most cases, is probably what you want to do when applying spacing within your Symbol.
+
 ---
 
 <img id="alignment" src=".images/feature-alignment.svg" alt="Auto alignment" height="60"/>
@@ -186,6 +194,7 @@ Similar to spacing / padding, it is by naming the group something specific, with
 
 ![Alignment with spacing example](.images/GIFs/spacing-alignment.gif)
 
+You can even specify more than one alignment value, if you wish. For example: **`[c m]`** will align the layers in the middle and center. Or **`[t c]`** to align on the top + center.
 
 ---
 
