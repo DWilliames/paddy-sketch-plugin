@@ -6,17 +6,17 @@
 
 
 // Global initalised variables from 'context'
-var selection, document, plugin, app, iconImage
+var selection, document, plugin, app, iconImage, command
 
 function onSetUp(context) {
   document = context.document
   plugin = context.plugin
+  command = context.command
 
   if (PERSISTENT) {
     coscript.setShouldKeepAround(true)
   }
 }
-
 
 // ****************************
 //   Plugin command handlers
@@ -222,16 +222,20 @@ var layers = [] // Keep this here, so that next time the selection is nothing, w
 
 function selectionChanged(context) {
   startBenchmark()
+  document = context.actionContext.document
+
 
   // Only include layers that had properties change
   // Particularly if their frame or position changed
+
+  var initialSelectedProps = getPreviousSelectedProps()
 
   // Only run if nothing is now selected
   if (context.actionContext.newSelection.length > 0) {
 
     var previouslySelectedParentProps = initialParentProps
 
-    initialSelectedProps = {}
+    initialSelectedProps = NSMutableDictionary.dictionary()
     initialParentProps = {}
     layers = []
 
@@ -241,18 +245,34 @@ function selectionChanged(context) {
       var size = frame.size()
       var origin = frame.origin()
 
-      var props = {
-        layer: layer,
-        frame: rectForLayer(layer),
-        name: layer.name(),
-        parent: layer.parentGroup()
+      var props = NSMutableDictionary.dictionary()
+      // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(layer), 'layer')
+      var rect = rectForLayer(layer)
+      var rectDictionary = NSMutableDictionary.dictionary()
+      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.x()), 'x')
+      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.y()), 'y')
+      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.width()), 'width')
+      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.height()), 'height')
+
+      props.setObject_forKey(rectDictionary, 'frame')
+
+      // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(rectForLayer(layer)), 'frame')
+      props.setObject_forKey(layer.name(), 'name')
+
+      if (layer.parentGroup()) {
+        props.setObject_forKey(layer.parentGroup().objectID(), 'parent')
       }
+
+      // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(layer.parentGroup()), 'parent')
 
       if (layer.isMemberOfClass(MSSymbolInstance)) {
-        props.overrides = layer.overrides()
+        props.setObject_forKey(layer.overrides(), 'overrides')
+
+        // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(layer.overrides()), 'overrides')
       }
 
-      initialSelectedProps[layer.objectID()] = props
+      props = NSDictionary.dictionaryWithDictionary(props)
+      initialSelectedProps.setObject_forKey(props, layer.objectID())
 
       if (layer.parentGroup()) {
         var parent = layer.parentGroup()
@@ -278,19 +298,26 @@ function selectionChanged(context) {
         }
       }
     })
+    savePreviousSelectedProps(initialSelectedProps)
+
     return
   }
 
+  var layerToSelect = document.currentPage().layers()[0]
+  var layerToSelect = MSLayer.alloc().init()
+  print('Select... ')
+  print(layerToSelect)
+  select(layerToSelect)
+
   log('RUN PLUGIN BECAUSE SELECTION CHANGED')
-  document = context.actionContext.document
+
 
   // Update the padding for every layer that was previously selected
   log('Update every layer that WAS selected', context.actionContext.oldSelection)
 
-
   context.actionContext.oldSelection.forEach(function(layer) {
 
-    var layerProps = initialSelectedProps[layer.objectID()]
+    var layerProps = initialSelectedProps.objectForKey(layer.objectID())
 
     if (!layerProps) {
       log(2, 'Layer wasn\'t previously selected')
@@ -298,13 +325,24 @@ function selectionChanged(context) {
     }
 
     var frame = rectForLayer(layer)
-    var previousFrame = layerProps['frame']
+    // var previousFrame = NSKeyedUnarchiver.unarchiveObjectWithData(layerProps.objectForKey('frame'))
+    var previousFrame = layerProps.objectForKey('frame')
+    var x = previousFrame.objectForKey('x')
+    var y = previousFrame.objectForKey('y')
+    var width = previousFrame.objectForKey('width')
+    var height = previousFrame.objectForKey('height')
 
-    if (layerProps['parent'] && !layer.parentGroup()) {
+    var sameOrigin = (x == frame.x() && y == frame.y())
+    var sameSize = (width == frame.width() && height == frame.height())
+
+    var parent = layerProps.objectForKey('parent')
+    var overrides = layerProps.objectForKey('overrides')
+
+    if (parent && !layer.parentGroup()) {
       // Doesn't have a parent anymore... must've been deleted
       log(2, 'Do not have a parent anymore', layer)
       layers.push(layerProps.parent)
-    } else if (!CGSizeEqualToSize(frame.size(), previousFrame.size())) {
+    } else if (!sameSize) {
       log(2, 'Changed frame size', layer)
       layers.push(layer)
 
@@ -312,13 +350,13 @@ function selectionChanged(context) {
       if (layer.isMemberOfClass(MSLayerGroup)) {
         layers = layers.concat(getAllChildrenForGroup(layer))
       }
-    } else if (!CGPointEqualToPoint(frame.origin(), previousFrame.origin())) {
+    } else if (!sameOrigin) {
       log(2, 'Frame changed position', layer)
       layers.push(layer.parentGroup())
-    } else if (layerProps['name'] != layer.name()) {
+    } else if (layerProps.objectForKey('name') != layer.name()) {
       log(2, 'Changed name', layer)
       layers.push(layer)
-    } else if (layer.isMemberOfClass(MSSymbolInstance) && layerProps['overrides'] != layer.overrides()) {
+    } else if (layer.isMemberOfClass(MSSymbolInstance) && overrides != layer.overrides()) {
       log(2, 'Changed overrides', layer)
       // Ignore unique siblings, if it is a Symbol instance, or a layer group
       // Only add a symbol, if it actually changed props
@@ -341,6 +379,8 @@ function selectionChanged(context) {
   })
 
   endBenchmark()
+
+  unselect(layerToSelect)
 }
 
 
@@ -415,9 +455,14 @@ function updatePaddingAndSpacingForLayer(layer) {
  */
 function updatePaddingForLayerBG(bg) {
   log(1, 'Updating padding with BG', bg)
-  if (!bg) return
+  if (!bg) {
+    print('ALERT NOW???')
+    return
+  }
 
   var padding = getPaddingFromLayer(bg)
+  print('ALERT NOW???')
+
   if (!padding) return
 
   log(2, 'Updating padding for...', bg, JSON.stringify(padding))

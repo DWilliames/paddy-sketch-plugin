@@ -371,8 +371,13 @@ function buildTreeMap(layers) {
     var layer = sorted[i]
     var previous = i > 0 ? sorted[i-1] : null
 
-    if (previous != layer) {
+    if (previous != layer && !layerIsDuplicator(layer)) {
       unique.push(layer)
+    } else {
+      if (layerIsDuplicator(layer)) {
+        print('Layer is duplicator')
+        print(layer)
+      }
     }
   }
 
@@ -454,4 +459,19 @@ function unselect(layer) {
  */
 function select(layer) {
   layer.select_byExtendingSelection(true, true)
+}
+
+
+/*
+ * Check if layer is a duplicator for Craft
+ * As this seems to conflict, and present a modal saying...
+ * "Please select at least one layer to duplicate"
+ */
+function layerIsDuplicator(layer) {
+  var userInfo = layer.userInfo()
+
+  if (userInfo && userInfo['com.invisionlabs.duplicate']) {
+    return true
+  }
+  return false
 }

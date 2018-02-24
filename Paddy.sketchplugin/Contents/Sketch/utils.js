@@ -1,8 +1,8 @@
 
 // Whether to show logging or not
-var DEBUG = false // FALSE for prod
+var DEBUG = true // FALSE for prod
 var TIMER = false // FALSE for prod
-var PERSISTENT = true // TRUE for prod
+var PERSISTENT = false // TRUE for prod
 
 /**
  * Log a bunch of values
@@ -93,4 +93,56 @@ function compareVersion(a, b) {
     }
   }
   return a.length - b.length
+}
+
+function getPreviousSelectedProps() {
+  var docData = document.documentData()
+  var pluginIdentifier = plugin.identifier()
+
+  // var defaults = NSUserDefaults.alloc().initWithSuiteName(pluginIdentifier)
+  //
+  // var data = defaults.objectForKey('previousSelectedProps')
+  // print(data)
+  // // return data
+  // var unarchiverClass = NSClassFromString(@"NSKeyedUnarchiver")
+  // print(unarchiverClass)
+  // // var unarchiver = unarchiverClass.unarchiver()
+  //
+  // var props = NSKeyedUnarchiver.unarchiveObjectWithData(data)
+  // print(props)
+  // return props
+
+
+  return command.valueForKey_onLayer_forPluginIdentifier('previousSelectedProps', docData, pluginIdentifier)
+}
+
+function savePreviousSelectedProps(props) {
+  var docData = document.documentData()
+  var pluginIdentifier = plugin.identifier()
+
+  // var defaults = NSUserDefaults.alloc().initWithSuiteName(pluginIdentifier)
+
+  props = NSDictionary.dictionaryWithDictionary(props)
+
+  // var data = NSKeyedArchiver.archivedDataWithRootObject(props)
+  // defaults.setObject_forKey(data, 'previousSelectedProps')
+  // print(data)
+
+  print('Props')
+  print(props)
+  print(props.class())
+
+
+
+  command.setValue_forKey_onLayer_forPluginIdentifier(props, 'previousSelectedProps', docData, pluginIdentifier)
+}
+
+function saveValueWithKeyToLayer(value, key, layer) {
+  var pluginIdentifier = plugin.identifier()
+  command.setValue_forKey_onLayer_forPluginIdentifier(value, key, layer, pluginIdentifier)
+}
+
+function getValueForKeyFromLayer(key, layer) {
+  var pluginIdentifier = plugin.identifier()
+  return command.valueForKey_onLayer_forPluginIdentifier(key, layer, pluginIdentifier)
 }
