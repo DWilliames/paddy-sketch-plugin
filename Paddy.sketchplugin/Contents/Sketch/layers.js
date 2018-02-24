@@ -445,3 +445,17 @@ function unselect(layer) {
 function select(layer) {
   layer.select_byExtendingSelection(true, true)
 }
+
+
+function resizeLayer(layer) {
+  print('resizing layer: ' + layer)
+  // A hack for resizing – just in case Craft's Duplicator is installed
+  // Select a 'Fake' layer, so that when we 'resize', the selection is not empty
+  var nullLayer = MSLayer.alloc().init()
+  document.currentPage().addLayer(nullLayer)
+  nullLayer.select_byExtendingSelection(true, true)
+
+  layer.layerDidEndResize()
+
+  document.currentPage().removeLayer(nullLayer)
+}

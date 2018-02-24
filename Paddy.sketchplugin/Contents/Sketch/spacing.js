@@ -310,7 +310,8 @@ function applySpacingToGroup(spacing, groupLayer) {
   groupLayer.frame().setX(beginningX)
   groupLayer.frame().setY(beginningY)
 
-  groupLayer.layerDidEndResize()
+  resizeLayer(groupLayer)
+
 }
 
 

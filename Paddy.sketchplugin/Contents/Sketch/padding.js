@@ -302,7 +302,8 @@ function applyPaddingToLayerWithContainerRect(padding, layer, containerRect) {
   layer.frame().setWidth(width)
   layer.frame().setHeight(height)
 
-  layer.layerDidEndResize()
+  resizeLayer(layer)
+
 }
 
 

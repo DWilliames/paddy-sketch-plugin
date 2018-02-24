@@ -300,7 +300,7 @@ function updateForSymbolInstance(symbol) {
     symbol.frame().setX(symbol.frame().x() + xDiff)
   }
 
-  symbol.layerDidEndResize()
+  resizeLayer(symbol)
 }
 
 

@@ -18,6 +18,7 @@ function onSetUp(context) {
 //   Plugin command handlers
 // ****************************
 
+
 function autoApplyPadding(context) {
   applyPadding(context, false)
 }
@@ -124,7 +125,8 @@ function applyPadding(context, promptUser) {
           parent.insertLayer_atIndex(bg, 0)
         }
 
-        parent.layerDidEndResize()
+        resizeLayer(parent)
+
       }
 
     } else if (!promptUser) {
@@ -379,110 +381,7 @@ function selectionChanged(context) {
     updatePaddingAndSpacingForLayer(layer)
   })
 
-  // updateLayers(layers)
-
   endBenchmark()
-}
-
-
-
-// Keep track of all the layers that need updating
-var layersToUpdate = []
-var updatedLayers = [] // Object IDs of updated layers
-var layersToSkip = []
-
-function updateLayers(additionalLayers) {
-
-  print('Additional layers')
-  print(additionalLayers)
-
-  if (additionalLayers) {
-    var newLayers = 0
-
-    // Append the new layers
-    additionalLayers.forEach(function(layer) {
-      // Only if it hasn't already been updated, and it doesn't already have a sibling ready to go
-      // unless it is a layer group or artboard
-      if (!containsLayerID(updatedLayers, layer.objectID())) {
-        if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup)) {
-          layersToUpdate.push(layer)
-          newLayers++
-        } else if (!doesArrayContainSibling(layersToUpdate, layer)){
-          layersToUpdate.push(layer)
-          newLayers++
-        }
-      }
-    })
-
-    // Re-sort layers to update, if new values were added
-    if (newLayers > 0) {
-      // Sort the layers based on their depth
-      layersToUpdate = layersToUpdate.sort(function(a, b) {
-        var aDepth = layerTreeDepth(a)
-        var bDepth = layerTreeDepth(b)
-
-        if (aDepth == bDepth) {
-          if (a.isMemberOfClass(MSLayerGroup) && b.isMemberOfClass(MSLayerGroup)) {
-              return a.objectID().localeCompare(b.objectID())
-          } else if (a.isMemberOfClass(MSLayerGroup)) {
-            return -1
-          } else if (b.isMemberOfClass(MSLayerGroup)) {
-            return 1
-          }
-          return a.objectID().localeCompare(b.objectID())
-        }
-        return (layerTreeDepth(a) < layerTreeDepth(b) ? 1 : -1)
-      })
-    }
-  }
-
-  // Get the next layer to update
-  if (layersToUpdate.length > 0) {
-    var layer = layersToUpdate[0]
-    // Pre-emptively, say it has been added
-    updatedLayers.push(layer.objectID())
-    layersToUpdate = layersToUpdate.slice(1)
-
-    print('Updating for: ' + layer.name())
-
-    var originalRect = rectForLayer(layer, true)
-    print('original rect')
-    print(originalRect)
-    var recalculatedPadding = updatePaddingAndSpacingForLayer(layer)
-
-    if (recalculatedPadding && layer.parentGroup()) {
-      print('Adding skip layer')
-      layersToSkip.push(layer.parentGroup())
-    }
-
-    // Figure out which layers to add now; based on if the layer updated
-    if (!layer.isMemberOfClass(MSSymbolMaster) && layer.parentGroup()) {
-
-      // If the layer was one of the selected ones, update its parent anyway
-      // Otherwise if the layer's frame changed... get its parent to update too
-      if (contains(layers, layer) || contains(layersToSkip, layer)) {
-        print('Updating anyway...')
-        updateLayers([layer.parentGroup()])
-      } else {
-        var newRect = rectForLayer(layer, true)
-        print('new rect')
-        print(newRect)
-
-        if (!originalRect.isEqual(newRect)) {
-          print('Rect changed... updating parent')
-          updateLayers([layer.parentGroup()])
-        } else {
-          print('Rect didn\'t change.. oh well')
-          updateLayers([layer.parentGroup()])
-        }
-      }
-
-    }
-
-    if (layersToUpdate.length > 0) {
-      updateLayers()
-    }
-  }
 }
 
 
@@ -510,7 +409,8 @@ function updatePaddingAndSpacingForLayer(layer) {
       applySpacingToGroup(spacing, layer)
     }
 
-    layer.layerDidEndResize()
+    resizeLayer(layer)
+
   }
 
   // SYMBOL INSTANCE
@@ -546,7 +446,7 @@ function updatePaddingAndSpacingForLayer(layer) {
         applySpacingToGroup(spacing, parent)
       }
 
-      parent.layerDidEndResize()
+      resizeLayer(parent)
     }
 
     var bg = getBackgroundForLayer(layer)
@@ -581,5 +481,6 @@ function updatePaddingForLayerBG(bg) {
   applyPaddingToLayerWithContainerRect(padding, bg, containerRect)
 
   // Now that the frame has changed — update the 'selected' frame
+  print('7 Layer did end resize')
   bg.parentGroup().layerDidEndResize()
 }
