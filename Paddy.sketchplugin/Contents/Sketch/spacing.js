@@ -69,9 +69,9 @@ function layerHasSpacing(layer) {
   if (!canLayerHaveSpacing(layer)) return false
 
   var spacingString = layerSpacingString(layer)
-  if (!spacingString) return FALSE
+  if (!spacingString) return false
 
-  return (spacingFromString(layer) != null)
+  return (spacingFromString(spacingString) != null)
 }
 
 
