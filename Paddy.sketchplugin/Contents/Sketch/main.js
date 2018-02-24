@@ -12,10 +12,6 @@ function onSetUp(context) {
   document = context.document
   plugin = context.plugin
   command = context.command
-
-  if (PERSISTENT) {
-    coscript.setShouldKeepAround(true)
-  }
 }
 
 // ****************************
@@ -212,13 +208,7 @@ function textChanged(context) {
 
 // SELECTION
 
-// Store the properties of a layer when it is initially selected
-// Then we can see if they changed once the user deselects everything
-var initialSelectedProps = {}
-var initialParentProps = {}
-
-// Layers that we 'will' need to update next time
-var layers = [] // Keep this here, so that next time the selection is nothing, we can tell which layers need updating
+var layers = []
 
 function selectionChanged(context) {
   startBenchmark()
@@ -228,58 +218,61 @@ function selectionChanged(context) {
   // Only include layers that had properties change
   // Particularly if their frame or position changed
 
-  var initialSelectedProps = getPreviousSelectedProps()
+  // Store the properties of a layer when it is initially selected
+  // Then we can see if they changed once the user deselects everything
+  var initialSelectedProps = getValueWithKeyFromDoc(previouslySelectedKey)
+  if (!initialSelectedProps) initialSelectedProps = {}
+
+  var initialParentProps = getValueWithKeyFromDoc(previousParentKey)
+  if (!initialParentProps) initialParentProps = {}
+
+  // Layers that we 'will' need to update next time
+  // Keep this here, so that next time the selection is nothing, we can tell which layers need updating
+  var persistentLayers = getValueWithKeyFromDoc(persistentLayersKey)
+  if (!persistentLayers) persistentLayers = []
 
   // Only run if nothing is now selected
   if (context.actionContext.newSelection.length > 0) {
 
+
     var previouslySelectedParentProps = initialParentProps
 
-    initialSelectedProps = NSMutableDictionary.dictionary()
+    initialSelectedProps = {}
     initialParentProps = {}
-    layers = []
+    persistentLayers = []
 
     context.actionContext.newSelection.forEach(function(layer) {
 
-      var frame = layer.frame()
-      var size = frame.size()
-      var origin = frame.origin()
-
-      var props = NSMutableDictionary.dictionary()
-      // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(layer), 'layer')
       var rect = rectForLayer(layer)
-      var rectDictionary = NSMutableDictionary.dictionary()
-      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.x()), 'x')
-      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.y()), 'y')
-      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.width()), 'width')
-      rectDictionary.setObject_forKey(NSNumber.numberWithFloat(rect.height()), 'height')
-
-      props.setObject_forKey(rectDictionary, 'frame')
-
-      // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(rectForLayer(layer)), 'frame')
-      props.setObject_forKey(layer.name(), 'name')
+      var props = {
+        frame: {
+          x: rect.x(),
+          y: rect.y(),
+          width: rect.width(),
+          height: rect.height()
+        },
+        name: layer.name()
+      }
 
       if (layer.parentGroup()) {
-        props.setObject_forKey(layer.parentGroup().objectID(), 'parent')
+        props.parent = layer.parentGroup().objectID()
       }
-
-      // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(layer.parentGroup()), 'parent')
 
       if (layer.isMemberOfClass(MSSymbolInstance)) {
-        props.setObject_forKey(layer.overrides(), 'overrides')
-
-        // props.setObject_forKey(NSKeyedArchiver.archivedDataWithRootObject(layer.overrides()), 'overrides')
+        props.overrides = layer.overrides()
       }
 
-      props = NSDictionary.dictionaryWithDictionary(props)
-      initialSelectedProps.setObject_forKey(props, layer.objectID())
+      initialSelectedProps[layer.objectID()] = props
+
+
+      // initialSelectedProps.setObject_forKey(props, layer.objectID())
 
       if (layer.parentGroup()) {
         var parent = layer.parentGroup()
 
         var parentLayers = []
         parent.layers().forEach(function(layer) {
-          parentLayers.push(layer)
+          parentLayers.push(layer.objectID())
         })
 
         initialParentProps[parent.objectID()] = {
@@ -291,26 +284,30 @@ function selectionChanged(context) {
         var previousProps = previouslySelectedParentProps[parent.objectID()]
         if (previousProps) {
 
-          if (previousProps.children != props.siblings) {
+          if (!stringArraysEqual(previousProps.children, parentLayers)) {
             // PROBABLY duplicated a layer
-            layers.push(parent)
+            persistentLayers.push(parent.objectID())
           }
         }
       }
     })
-    savePreviousSelectedProps(initialSelectedProps)
+
+    saveValueWithKeyToDoc(initialSelectedProps, previouslySelectedKey)
+    saveValueWithKeyToDoc(initialParentProps, previousParentKey)
+    saveValueWithKeyToDoc(persistentLayers, persistentLayersKey)
 
     return
   }
 
-  var layerToSelect = document.currentPage().layers()[0]
-  var layerToSelect = MSLayer.alloc().init()
-  print('Select... ')
-  print(layerToSelect)
-  select(layerToSelect)
-
   log('RUN PLUGIN BECAUSE SELECTION CHANGED')
 
+  var docData = document.documentData()
+
+  // Add persistent layers... that is ones that were probably created from duplication
+  persistentLayers.forEach(function(layerID) {
+    var layer = docData.layerWithID(layerID)
+    layers.push(layer)
+  })
 
   // Update the padding for every layer that was previously selected
   log('Update every layer that WAS selected', context.actionContext.oldSelection)
@@ -319,52 +316,56 @@ function selectionChanged(context) {
 
     var layerProps = initialSelectedProps.objectForKey(layer.objectID())
 
-    if (!layerProps) {
-      log(2, 'Layer wasn\'t previously selected')
-      return
-    }
+    if (layerProps) {
+      var frame = rectForLayer(layer)
 
-    var frame = rectForLayer(layer)
-    // var previousFrame = NSKeyedUnarchiver.unarchiveObjectWithData(layerProps.objectForKey('frame'))
-    var previousFrame = layerProps.objectForKey('frame')
-    var x = previousFrame.objectForKey('x')
-    var y = previousFrame.objectForKey('y')
-    var width = previousFrame.objectForKey('width')
-    var height = previousFrame.objectForKey('height')
+      var previousFrame = layerProps.frame
+      var x = previousFrame.x
+      var y = previousFrame.y
+      var width = previousFrame.width
+      var height = previousFrame.height
 
-    var sameOrigin = (x == frame.x() && y == frame.y())
-    var sameSize = (width == frame.width() && height == frame.height())
+      var sameOrigin = (x == frame.x() && y == frame.y())
+      var sameSize = (width == frame.width() && height == frame.height())
 
-    var parent = layerProps.objectForKey('parent')
-    var overrides = layerProps.objectForKey('overrides')
+      var parent = layerProps.parent
+      var overrides = layerProps.overrides
 
-    if (parent && !layer.parentGroup()) {
-      // Doesn't have a parent anymore... must've been deleted
-      log(2, 'Do not have a parent anymore', layer)
-      layers.push(layerProps.parent)
-    } else if (!sameSize) {
-      log(2, 'Changed frame size', layer)
-      layers.push(layer)
-
-      // Add all it's children, if the layer was a group
-      if (layer.isMemberOfClass(MSLayerGroup)) {
-        layers = layers.concat(getAllChildrenForGroup(layer))
+      if (parent && !layer.parentGroup()) {
+        // Doesn't have a parent anymore... must've been deleted
+        log(2, 'Do not have a parent anymore', layer)
+        layers.push(docData.layerWithID(layerProps.parent))
+      } else if (!sameSize) {
+        log(2, 'Changed frame size', layer)
+        layers.push(layer)
+        // Add all it's children, if the layer was a group
+        if (layer.isMemberOfClass(MSLayerGroup)) {
+          layers = layers.concat(getAllChildrenForGroup(layer))
+        }
+      } else if (!sameOrigin) {
+        log(2, 'Frame changed position', layer)
+        layers.push(layer.parentGroup())
+      } else if (layerProps.objectForKey('name') != layer.name()) {
+        log(2, 'Changed name', layer)
+        layers.push(layer)
+      } else if (layer.isMemberOfClass(MSSymbolInstance) && overrides != layer.overrides()) {
+        log(2, 'Changed overrides', layer)
+        // Ignore unique siblings, if it is a Symbol instance, or a layer group
+        // Only add a symbol, if it actually changed props
+        layers.push(layer)
+      } else {
+        log(2, 'Layer did not change', layer)
       }
-    } else if (!sameOrigin) {
-      log(2, 'Frame changed position', layer)
-      layers.push(layer.parentGroup())
-    } else if (layerProps.objectForKey('name') != layer.name()) {
-      log(2, 'Changed name', layer)
-      layers.push(layer)
-    } else if (layer.isMemberOfClass(MSSymbolInstance) && overrides != layer.overrides()) {
-      log(2, 'Changed overrides', layer)
-      // Ignore unique siblings, if it is a Symbol instance, or a layer group
-      // Only add a symbol, if it actually changed props
-      layers.push(layer)
     } else {
-      log(2, 'Layer did not change', layer)
+      log('Layer wasn\'t previously selected... – let\'s add it anyway, just in case')
+      layers.push(layer)
     }
   })
+
+  // Reset persistent properties
+  saveValueWithKeyToDoc({}, previouslySelectedKey)
+  saveValueWithKeyToDoc({}, previousParentKey)
+  saveValueWithKeyToDoc([], persistentLayersKey)
 
   if (layers.length == 0) {
     endBenchmark()
@@ -378,18 +379,125 @@ function selectionChanged(context) {
     updatePaddingAndSpacingForLayer(layer)
   })
 
-  endBenchmark()
+  // updateLayers(layers)
 
-  unselect(layerToSelect)
+  endBenchmark()
+}
+
+
+
+// Keep track of all the layers that need updating
+var layersToUpdate = []
+var updatedLayers = [] // Object IDs of updated layers
+var layersToSkip = []
+
+function updateLayers(additionalLayers) {
+
+  print('Additional layers')
+  print(additionalLayers)
+
+  if (additionalLayers) {
+    var newLayers = 0
+
+    // Append the new layers
+    additionalLayers.forEach(function(layer) {
+      // Only if it hasn't already been updated, and it doesn't already have a sibling ready to go
+      // unless it is a layer group or artboard
+      if (!containsLayerID(updatedLayers, layer.objectID())) {
+        if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup)) {
+          layersToUpdate.push(layer)
+          newLayers++
+        } else if (!doesArrayContainSibling(layersToUpdate, layer)){
+          layersToUpdate.push(layer)
+          newLayers++
+        }
+      }
+    })
+
+    // Re-sort layers to update, if new values were added
+    if (newLayers > 0) {
+      // Sort the layers based on their depth
+      layersToUpdate = layersToUpdate.sort(function(a, b) {
+        var aDepth = layerTreeDepth(a)
+        var bDepth = layerTreeDepth(b)
+
+        if (aDepth == bDepth) {
+          if (a.isMemberOfClass(MSLayerGroup) && b.isMemberOfClass(MSLayerGroup)) {
+              return a.objectID().localeCompare(b.objectID())
+          } else if (a.isMemberOfClass(MSLayerGroup)) {
+            return -1
+          } else if (b.isMemberOfClass(MSLayerGroup)) {
+            return 1
+          }
+          return a.objectID().localeCompare(b.objectID())
+        }
+        return (layerTreeDepth(a) < layerTreeDepth(b) ? 1 : -1)
+      })
+    }
+  }
+
+  // Get the next layer to update
+  if (layersToUpdate.length > 0) {
+    var layer = layersToUpdate[0]
+    // Pre-emptively, say it has been added
+    updatedLayers.push(layer.objectID())
+    layersToUpdate = layersToUpdate.slice(1)
+
+    print('Updating for: ' + layer.name())
+
+    var originalRect = rectForLayer(layer, true)
+    print('original rect')
+    print(originalRect)
+    var recalculatedPadding = updatePaddingAndSpacingForLayer(layer)
+
+    if (recalculatedPadding && layer.parentGroup()) {
+      print('Adding skip layer')
+      layersToSkip.push(layer.parentGroup())
+    }
+
+    // Figure out which layers to add now; based on if the layer updated
+    if (!layer.isMemberOfClass(MSSymbolMaster) && layer.parentGroup()) {
+
+      // If the layer was one of the selected ones, update its parent anyway
+      // Otherwise if the layer's frame changed... get its parent to update too
+      if (contains(layers, layer) || contains(layersToSkip, layer)) {
+        print('Updating anyway...')
+        updateLayers([layer.parentGroup()])
+      } else {
+        var newRect = rectForLayer(layer, true)
+        print('new rect')
+        print(newRect)
+
+        if (!originalRect.isEqual(newRect)) {
+          print('Rect changed... updating parent')
+          updateLayers([layer.parentGroup()])
+        } else {
+          print('Rect didn\'t change.. oh well')
+          updateLayers([layer.parentGroup()])
+        }
+      }
+
+    }
+
+    if (layersToUpdate.length > 0) {
+      updateLayers()
+    }
+  }
 }
 
 
 /**
  * Update all padding for Background layers relevant to a layer
+ * Return if the layer updating its padding
  */
 function updatePaddingAndSpacingForLayer(layer) {
   if (!layer) return
   log('Updating for layer: ' + layer.name(), layer)
+
+  // Ignore Pages, if they have artboards
+  if (layer.isMemberOfClass(MSPage) && layer.cachedArtboards() && layer.cachedArtboards().length > 0) {
+    return
+  }
 
   // GROUPS = Spacing
   if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup) || layer.isMemberOfClass(MSPage)) {
@@ -412,7 +520,6 @@ function updatePaddingAndSpacingForLayer(layer) {
 
     var bg = getBackgroundForLayer(layer)
     updatePaddingForLayerBG(bg)
-
   }
 
   // SYMBOL MASTER
@@ -444,6 +551,8 @@ function updatePaddingAndSpacingForLayer(layer) {
 
     var bg = getBackgroundForLayer(layer)
     updatePaddingForLayerBG(bg)
+
+    return true
   }
 }
 
@@ -456,13 +565,12 @@ function updatePaddingAndSpacingForLayer(layer) {
 function updatePaddingForLayerBG(bg) {
   log(1, 'Updating padding with BG', bg)
   if (!bg) {
-    print('ALERT NOW???')
+    // Craft duplicate alert would appear now!
     return
   }
 
   var padding = getPaddingFromLayer(bg)
-  print('ALERT NOW???')
-
+  // Craft duplicate alert would appear now!
   if (!padding) return
 
   log(2, 'Updating padding for...', bg, JSON.stringify(padding))

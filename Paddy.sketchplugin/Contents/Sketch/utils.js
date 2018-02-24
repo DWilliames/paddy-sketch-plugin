@@ -1,8 +1,7 @@
 
 // Whether to show logging or not
-var DEBUG = true // FALSE for prod
-var TIMER = false // FALSE for prod
-var PERSISTENT = false // TRUE for prod
+var DEBUG = false // FALSE for prod
+var TIMER = true // FALSE for prod
 
 /**
  * Log a bunch of values
@@ -40,7 +39,7 @@ function endBenchmark() {
   var now = NSDate.date().timeIntervalSince1970()
   var diff = (now - timerTimestamp) * 1000
 
-  print('⏱ Time taken: ' + Math.round(diff) + 'ms')
+  print('⏱ Time taken: ' + parseFloat(Math.round(diff * 100) / 100).toFixed(0) + 'ms')
 
   timerTimestamp = null
 }
@@ -95,47 +94,47 @@ function compareVersion(a, b) {
   return a.length - b.length
 }
 
-function getPreviousSelectedProps() {
+
+function contains(array, element) {
+  return array.find(function(e) {
+    return e == element
+  })
+}
+
+
+function stringArraysEqual(a1, a2) {
+  if (a1.length != a2.length) return false
+
+  var s1 = a1.slice().sort().toString()
+  var s2 = a2.slice().sort().toString()
+
+  return (s1 == s2)
+}
+
+
+var previouslySelectedKey = 'previousSelectedProps'
+var previousParentKey = 'previousParentProps'
+var persistentLayersKey = 'persistentLayers'
+
+
+// Set / Get values from Doc
+
+function getValueWithKeyFromDoc(key) {
   var docData = document.documentData()
   var pluginIdentifier = plugin.identifier()
 
-  // var defaults = NSUserDefaults.alloc().initWithSuiteName(pluginIdentifier)
-  //
-  // var data = defaults.objectForKey('previousSelectedProps')
-  // print(data)
-  // // return data
-  // var unarchiverClass = NSClassFromString(@"NSKeyedUnarchiver")
-  // print(unarchiverClass)
-  // // var unarchiver = unarchiverClass.unarchiver()
-  //
-  // var props = NSKeyedUnarchiver.unarchiveObjectWithData(data)
-  // print(props)
-  // return props
-
-
-  return command.valueForKey_onLayer_forPluginIdentifier('previousSelectedProps', docData, pluginIdentifier)
+  return command.valueForKey_onLayer_forPluginIdentifier(key, docData, pluginIdentifier)
 }
 
-function savePreviousSelectedProps(props) {
+
+function saveValueWithKeyToDoc(value, key) {
   var docData = document.documentData()
   var pluginIdentifier = plugin.identifier()
-
-  // var defaults = NSUserDefaults.alloc().initWithSuiteName(pluginIdentifier)
-
-  props = NSDictionary.dictionaryWithDictionary(props)
-
-  // var data = NSKeyedArchiver.archivedDataWithRootObject(props)
-  // defaults.setObject_forKey(data, 'previousSelectedProps')
-  // print(data)
-
-  print('Props')
-  print(props)
-  print(props.class())
-
-
-
-  command.setValue_forKey_onLayer_forPluginIdentifier(props, 'previousSelectedProps', docData, pluginIdentifier)
+  command.setValue_forKey_onLayer_forPluginIdentifier(value, key, docData, pluginIdentifier)
 }
+
+
+// Set / Get values from layer
 
 function saveValueWithKeyToLayer(value, key, layer) {
   var pluginIdentifier = plugin.identifier()

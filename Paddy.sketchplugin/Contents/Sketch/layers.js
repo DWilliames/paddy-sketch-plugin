@@ -330,20 +330,12 @@ function buildTreeMap(layers) {
   layers.forEach(function(layer) {
     fullDepthMap.push(layer)
 
-    // // Add all it's children, if the layer was a group
-    // if (layer.isMemberOfClass(MSLayerGroup)) {
-    //   fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
-    // }
-
     var parent = layer.parentGroup()
     while(parent) {
       fullDepthMap.push(parent)
       parent = parent.parentGroup()
     }
   })
-
-  log('FULL DEPTH', fullDepthMap)
-
 
   // Sort the layers based on their depth
   var sorted = fullDepthMap.sort(function(a, b) {
@@ -363,21 +355,14 @@ function buildTreeMap(layers) {
     return (layerTreeDepth(a) < layerTreeDepth(b) ? 1 : -1)
   })
 
-  log('SORTED', sorted)
-
   // Remove duplicates
   var unique = []
   for(var i = 0; i < sorted.length; i++) {
     var layer = sorted[i]
     var previous = i > 0 ? sorted[i-1] : null
 
-    if (previous != layer && !layerIsDuplicator(layer)) {
+    if (previous != layer) {
       unique.push(layer)
-    } else {
-      if (layerIsDuplicator(layer)) {
-        print('Layer is duplicator')
-        print(layer)
-      }
     }
   }
 
@@ -459,19 +444,4 @@ function unselect(layer) {
  */
 function select(layer) {
   layer.select_byExtendingSelection(true, true)
-}
-
-
-/*
- * Check if layer is a duplicator for Craft
- * As this seems to conflict, and present a modal saying...
- * "Please select at least one layer to duplicate"
- */
-function layerIsDuplicator(layer) {
-  var userInfo = layer.userInfo()
-
-  if (userInfo && userInfo['com.invisionlabs.duplicate']) {
-    return true
-  }
-  return false
 }
