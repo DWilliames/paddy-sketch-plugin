@@ -448,7 +448,6 @@ function select(layer) {
 
 
 function resizeLayer(layer) {
-  print('resizing layer: ' + layer)
   // A hack for resizing – just in case Craft's Duplicator is installed
   // Select a 'Fake' layer, so that when we 'resize', the selection is not empty
   var nullLayer = MSLayer.alloc().init()

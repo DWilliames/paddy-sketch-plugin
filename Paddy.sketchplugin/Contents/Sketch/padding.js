@@ -70,8 +70,12 @@ function savePaddingToLayer(padding, layer) {
  */
 function layerHasPadding(layer) {
   if (!layer) return false
+  if (!canLayerHavePadding(layer)) return false
 
-  return canLayerHavePadding(layer) && layerPaddingString(layer) != null
+  var paddingString = layerPaddingString(layer)
+  if (!paddingString) return false
+
+  return (paddingFromString(paddingString) != null)
 }
 
 
@@ -101,6 +105,7 @@ var expressionSpliter = ';'
  * Convert it to a string
  */
 function paddingToString(padding) {
+  log(3, 'Turning padding into string', JSON.stringify(padding))
   var values = [padding.top, padding.right, padding.bottom, padding.left]
 
   if (padding.right == padding.left) {
@@ -145,6 +150,16 @@ function paddingFromString(string) {
   values = values.filter(function(value) {
     return value != ''
   })
+
+  // If any value is 'invalid' then return null
+  var invalidInput = values.find(function(value) {
+    return !(parseFloat(value).toString() == value || value == 'x')
+  })
+
+  if (invalidInput) {
+    log(2, 'Padding is invalid', string)
+    return null
+  }
 
   var top = bottom = left = right = 0
 

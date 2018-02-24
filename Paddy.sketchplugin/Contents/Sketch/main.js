@@ -245,7 +245,7 @@ function selectionChanged(context) {
 
     context.actionContext.newSelection.forEach(function(layer) {
 
-      var rect = rectForLayer(layer)
+      var rect = layer.absoluteRect() //rectForLayer(layer)
       var props = {
         frame: {
           x: rect.x(),
@@ -294,6 +294,8 @@ function selectionChanged(context) {
       }
     })
 
+    log('Initial selected Props', JSON.stringify(initialSelectedProps))
+
     saveValueWithKeyToDoc(initialSelectedProps, previouslySelectedKey)
     saveValueWithKeyToDoc(initialParentProps, previousParentKey)
     saveValueWithKeyToDoc(persistentLayers, persistentLayersKey)
@@ -319,7 +321,7 @@ function selectionChanged(context) {
     var layerProps = initialSelectedProps.objectForKey(layer.objectID())
 
     if (layerProps) {
-      var frame = rectForLayer(layer)
+      var frame = layer.absoluteRect()//rectForLayer(layer)
 
       var previousFrame = layerProps.frame
       var x = previousFrame.x
@@ -481,6 +483,5 @@ function updatePaddingForLayerBG(bg) {
   applyPaddingToLayerWithContainerRect(padding, bg, containerRect)
 
   // Now that the frame has changed — update the 'selected' frame
-  print('7 Layer did end resize')
-  bg.parentGroup().layerDidEndResize()
+  resizeLayer(bg.parentGroup())
 }

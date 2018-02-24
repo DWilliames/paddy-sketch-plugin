@@ -1,6 +1,6 @@
 
 // Whether to show logging or not
-var DEBUG = false // FALSE for prod
+var DEBUG = true // FALSE for prod
 var TIMER = true // FALSE for prod
 
 /**
