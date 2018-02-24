@@ -458,3 +458,16 @@ function resizeLayer(layer) {
 
   document.currentPage().removeLayer(nullLayer)
 }
+
+function pixelFitLayer(layer) {
+  if (!pixelFit) return
+
+  var frame = layer.frame()
+  var x = Math.round(frame.x())
+  var y = Math.round(frame.y())
+  var width = frame.width()//Math.round(frame.width())
+  var height = frame.height()//Math.round(frame.height())
+
+
+  layer.frame().setRectByIgnoringProportions(NSMakeRect(x, y, width, height))
+}

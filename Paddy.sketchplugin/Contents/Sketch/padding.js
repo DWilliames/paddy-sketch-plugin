@@ -311,13 +311,14 @@ function applyPaddingToLayerWithContainerRect(padding, layer, containerRect) {
   }
 
   // Outset the Background's frame – by the amount of Padding
-  layer.setConstrainProportions(false)
-  layer.frame().setX(x)
-  layer.frame().setY(y)
-  layer.frame().setWidth(width)
-  layer.frame().setHeight(height)
+  if (pixelFit) {
+    x = Math.round(x)
+    y = Math.round(y)
+    // width = Math.round(width)
+    // height = Math.round(height)
+  }
 
-  resizeLayer(layer)
+  layer.frame().setRectByIgnoringProportions(NSMakeRect(x, y, width, height))
 
 }
 
@@ -331,6 +332,13 @@ function getAssumedPaddingForBackgroundLayer(layer) {
   padding.right = (layer.frame().x() + layer.frame().width()) - (containerRect.x() + containerRect.width())
   padding.top = containerRect.y() - layer.frame().y()
   padding.bottom = (layer.frame().y() + layer.frame().height()) - (containerRect.y() + containerRect.height())
+
+  if (pixelFit) {
+    padding.left = Math.round(padding.left)
+    padding.right = Math.round(padding.right)
+    padding.top = Math.round(padding.top)
+    padding.bottom = Math.round(padding.bottom)
+  }
 
   return padding
 }

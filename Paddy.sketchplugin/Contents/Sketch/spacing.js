@@ -296,6 +296,8 @@ function applySpacingToGroup(spacing, groupLayer) {
     if(previousFrame.maxY() > maxY)
       maxY = previousFrame.maxY()
 
+    pixelFitLayer(layer)
+
   })
 
   if (spacing.align) {
@@ -319,12 +321,19 @@ function applySpacingToGroup(spacing, groupLayer) {
         var mid = minY + (maxY - minY) / 2.0
         layer.frame().setMidY(mid)
       }
+
+      pixelFitLayer(layer)
     })
   }
 
 
 
   log(2, 'Sorted layers', sortedLayers)
+
+  if (pixelFit) {
+    beginningX = Math.round(beginningX)
+    beginningY = Math.round(beginningY)
+  }
 
   // Reset the position to be the same
   groupLayer.frame().setX(beginningX)

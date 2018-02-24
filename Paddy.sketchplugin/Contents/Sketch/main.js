@@ -14,6 +14,9 @@ function onSetUp(context) {
   command = context.command
 }
 
+// Used for determining whether to round to 'whole pixels'
+var pixelFit = NSUserDefaults.standardUserDefaults().boolForKey('tryToFitToPixelBounds')
+
 // ****************************
 //   Plugin command handlers
 // ****************************
@@ -217,7 +220,6 @@ function selectionChanged(context) {
   startBenchmark()
   document = context.actionContext.document
 
-
   // Only include layers that had properties change
   // Particularly if their frame or position changed
 
@@ -398,7 +400,6 @@ function selectionChanged(context) {
 
 /**
  * Update all padding for Background layers relevant to a layer
- * Return if the layer updating its padding
  */
 function updatePaddingAndSpacingForLayer(layer) {
   if (!layer) return
@@ -419,8 +420,6 @@ function updatePaddingAndSpacingForLayer(layer) {
       var spacing = getSpacingFromLayer(layer)
       applySpacingToGroup(spacing, layer)
     }
-
-    resizeLayer(layer)
 
   }
 
@@ -456,14 +455,10 @@ function updatePaddingAndSpacingForLayer(layer) {
         var spacing = getSpacingFromLayer(parent)
         applySpacingToGroup(spacing, parent)
       }
-
-      resizeLayer(parent)
     }
 
     var bg = getBackgroundForLayer(layer)
     updatePaddingForLayerBG(bg)
-
-    return true
   }
 }
 
