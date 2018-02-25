@@ -126,7 +126,6 @@ function updateForSymbolInstance(symbol) {
     }
 
 
-
     var parent = layer.parentGroup()
     if (parent.isMemberOfClass(MSLayerGroup)) {
       originalPositions[parent.objectID()] = {
@@ -142,9 +141,9 @@ function updateForSymbolInstance(symbol) {
 
 
     layer.stringValue = symbolOverrides[id]
-    if (ignoreWidth) {
+    // if (ignoreWidth) {
       layer.textBehaviour = 0
-    }
+    // }
 
     layer.adjustFrameToFit()
 
@@ -181,7 +180,6 @@ function updateForSymbolInstance(symbol) {
     if (!dependents[id]) return
 
     var dependentLayers = dependents[id].dependents
-    // dependents[id] = null
 
     while(dependentLayers.length > 0) {
       var newDependentLayers = []
