@@ -419,11 +419,9 @@ function selectionChanged(context) {
       if (parent && !layer.parentGroup()) {
         // Doesn't have a parent anymore... must've been deleted
         log(2, 'Do not have a parent anymore', layer)
-        print('No more parent')
         layers.push(docData.layerWithID(layerProps.parent))
       } else if (!sameSize) {
         log(2, 'Changed frame size', layer)
-        print('Changed size')
         layers.push(layer)
         // Add all it's children, if the layer was a group
         if (layer.isMemberOfClass(MSLayerGroup)) {
@@ -431,26 +429,20 @@ function selectionChanged(context) {
         }
       } else if (!sameOrigin) {
         log(2, 'Frame changed position', layer)
-        print('Changed position')
         layers.push(layer.parentGroup())
       } else if (layerProps.objectForKey('name') != layer.name()) {
         log(2, 'Changed name', layer)
-        print('Changed name')
         layers.push(layer)
       } else if (layer.isMemberOfClass(MSSymbolInstance) && overrides != layer.overrides()) {
         log(2, 'Changed overrides', layer)
-        print('Changed overrides')
         // Ignore unique siblings, if it is a Symbol instance, or a layer group
         // Only add a symbol, if it actually changed props
         layers.push(layer)
       } else {
         log(2, 'Layer did not change', layer)
-        print('Layer did not change')
       }
     } else {
       log('Layer wasn\'t previously selected... – let\'s add it anyway, just in case')
-      print('**Layer wasn\'t previously selected... – let\'s add it anyway, just in case')
-      print(layer)
       layers.push(layer)
     }
   })
@@ -545,13 +537,16 @@ function updatePaddingAndSpacingForLayer(layer) {
       var treeMap = buildTreeMap(layer.allInstances())
 
       treeMap.forEach(function(layer){
-        document.showMessage('Updating instances (' + complete + '/' + total + ')')
-        print('Updating instances (' + complete + '/' + total + ')')
         updatePaddingAndSpacingForLayer(layer)
         complete++
       })
 
-      document.showMessage('Updated ' + total + ' instances')
+      var updatedMessage = 'Updated ' + total + ' instance'
+      if (total > 1) {
+        updatedMessage += 's'
+      }
+
+      document.showMessage(updatedMessage)
     }
 
   }

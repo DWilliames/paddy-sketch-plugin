@@ -367,7 +367,6 @@ function buildTreeMap(layers) {
   }
 
   log('UNIQUE', unique)
-  print(unique)
 
   return unique
 }

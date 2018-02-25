@@ -161,7 +161,16 @@ function updateForSymbolInstance(symbol) {
 
       layer.textBehaviour = 1
 
-      if (ignoreWidth) {
+      if (layer.hasFixedWidth()) {
+        layer.width = originalProperties[id].width
+      } else if (layer.parentGroup() && layer.parentGroup().hasFixedWidth()) {
+
+        var layerMaxWidth = layer.parentGroup().frame().width() - originalPositions[id].x
+        if (layer.frame().width() > layerMaxWidth) {
+          layer.frame().width = layerMaxWidth
+        }
+
+      } else if (ignoreWidth) {
         var originalLayerWidth = originalProperties[id].width
         var widthDiff = masterFrame.width() - originalLayerWidth
 
