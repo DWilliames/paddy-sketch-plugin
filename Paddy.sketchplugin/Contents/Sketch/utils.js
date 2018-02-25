@@ -2,7 +2,7 @@
 // Whether to show logging or not
 var DEBUG = false // FALSE for prod
 var TIMER = false // FALSE for prod
-var PERSISTENT = true // TRUE for prod
+var ACTIONS = false // FALSE for prod
 
 /**
  * Log a bunch of values
@@ -40,7 +40,7 @@ function endBenchmark() {
   var now = NSDate.date().timeIntervalSince1970()
   var diff = (now - timerTimestamp) * 1000
 
-  print('⏱ Time taken: ' + Math.round(diff) + 'ms')
+  print('⏱ Time taken: ' + parseFloat(Math.round(diff * 100) / 100).toFixed(0) + 'ms')
 
   timerTimestamp = null
 }
@@ -93,4 +93,57 @@ function compareVersion(a, b) {
     }
   }
   return a.length - b.length
+}
+
+
+function contains(array, element) {
+  return array.find(function(e) {
+    return e == element
+  })
+}
+
+
+function stringArraysEqual(a1, a2) {
+  if (a1.length != a2.length) return false
+
+  var s1 = a1.slice().sort().toString()
+  var s2 = a2.slice().sort().toString()
+
+  return (s1 == s2)
+}
+
+
+var previouslySelectedKey = 'previousSelectedProps'
+var previousParentKey = 'previousParentProps'
+var persistentLayersKey = 'persistentLayers'
+
+
+// Set / Get values from Doc
+
+function getValueWithKeyFromDoc(key) {
+  var docData = document.documentData()
+  var pluginIdentifier = plugin.identifier()
+
+  return command.valueForKey_onLayer_forPluginIdentifier(key, docData, pluginIdentifier)
+}
+
+
+function saveValueWithKeyToDoc(value, key) {
+  var docData = document.documentData()
+  var pluginIdentifier = plugin.identifier()
+
+  command.setValue_forKey_onLayer_forPluginIdentifier(value, key, docData, pluginIdentifier)
+}
+
+
+// Set / Get values from layer
+
+function saveValueWithKeyToLayer(value, key, layer) {
+  var pluginIdentifier = plugin.identifier()
+  command.setValue_forKey_onLayer_forPluginIdentifier(value, key, layer, pluginIdentifier)
+}
+
+function getValueForKeyFromLayer(key, layer) {
+  var pluginIdentifier = plugin.identifier()
+  return command.valueForKey_onLayer_forPluginIdentifier(key, layer, pluginIdentifier)
 }

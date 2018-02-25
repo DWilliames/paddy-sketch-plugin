@@ -90,22 +90,19 @@ function updateForSymbolInstance(symbol) {
   layersToOverride.forEach(function(layer) {
     var id = layer.objectID()
 
-    if (!(layer.hasFixedLeft() || layer.hasFixedRight())) {
+    // If the text layer is 'fixed', pin it to the right 'and' left, if it does have a fixed width
+    if (layer.isMemberOfClass(MSTextLayer) && layer.textBehaviour() == 1 && !layer.hasFixedWidth()) {
+      layer.hasFixedRight = true
+      layer.hasFixedLeft = true
+    } else if (layer.textAlignment() == 2) {
+      layer.hasFixedLeft = true
+      layer.hasFixedRight = true
+    } else if (!(layer.hasFixedLeft() || layer.hasFixedRight())) {
       if (layer.textAlignment() == 1) {
-        layer.hasFixedRight = true
-      } else if (layer.textAlignment() == 2) {
-        layer.hasFixedLeft = true
         layer.hasFixedRight = true
       } else {
         layer.hasFixedLeft = true
       }
-
-      // If the text layer is 'fixed', pin it to the right 'and' left, if it does have a fixed width
-      if (layer.isMemberOfClass(MSTextLayer) && layer.textBehaviour() == 1 && !layer.hasFixedWidth()) {
-        layer.hasFixedRight = true
-        layer.hasFixedLeft = true
-      }
-
     }
     if (!(layer.hasFixedTop() || layer.hasFixedBottom())) {
       layer.hasFixedTop = true
@@ -129,7 +126,6 @@ function updateForSymbolInstance(symbol) {
     }
 
 
-
     var parent = layer.parentGroup()
     if (parent.isMemberOfClass(MSLayerGroup)) {
       originalPositions[parent.objectID()] = {
@@ -145,9 +141,9 @@ function updateForSymbolInstance(symbol) {
 
 
     layer.stringValue = symbolOverrides[id]
-    if (ignoreWidth) {
+    // if (ignoreWidth) {
       layer.textBehaviour = 0
-    }
+    // }
 
     layer.adjustFrameToFit()
 
@@ -165,7 +161,16 @@ function updateForSymbolInstance(symbol) {
 
       layer.textBehaviour = 1
 
-      if (ignoreWidth) {
+      if (layer.hasFixedWidth()) {
+        layer.width = originalProperties[id].width
+      } else if (layer.parentGroup() && layer.parentGroup().hasFixedWidth()) {
+
+        var layerMaxWidth = layer.parentGroup().frame().width() - originalPositions[id].x
+        if (layer.frame().width() > layerMaxWidth) {
+          layer.frame().width = layerMaxWidth
+        }
+
+      } else if (ignoreWidth) {
         var originalLayerWidth = originalProperties[id].width
         var widthDiff = masterFrame.width() - originalLayerWidth
 
@@ -184,7 +189,6 @@ function updateForSymbolInstance(symbol) {
     if (!dependents[id]) return
 
     var dependentLayers = dependents[id].dependents
-    // dependents[id] = null
 
     while(dependentLayers.length > 0) {
       var newDependentLayers = []
@@ -300,7 +304,7 @@ function updateForSymbolInstance(symbol) {
     symbol.frame().setX(symbol.frame().x() + xDiff)
   }
 
-  symbol.layerDidEndResize()
+  resizeLayer(symbol)
 }
 
 

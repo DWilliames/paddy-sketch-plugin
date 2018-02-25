@@ -70,8 +70,12 @@ function savePaddingToLayer(padding, layer) {
  */
 function layerHasPadding(layer) {
   if (!layer) return false
+  if (!canLayerHavePadding(layer)) return false
 
-  return canLayerHavePadding(layer) && layerPaddingString(layer) != null
+  var paddingString = layerPaddingString(layer)
+  if (!paddingString) return false
+
+  return (paddingFromString(paddingString) != null)
 }
 
 
@@ -101,6 +105,7 @@ var expressionSpliter = ';'
  * Convert it to a string
  */
 function paddingToString(padding) {
+  log(3, 'Turning padding into string', JSON.stringify(padding))
   var values = [padding.top, padding.right, padding.bottom, padding.left]
 
   if (padding.right == padding.left) {
@@ -145,6 +150,16 @@ function paddingFromString(string) {
   values = values.filter(function(value) {
     return value != ''
   })
+
+  // If any value is 'invalid' then return null
+  var invalidInput = values.find(function(value) {
+    return !(parseFloat(value).toString() == value || value == 'x')
+  })
+
+  if (invalidInput) {
+    log(2, 'Padding is invalid', string)
+    return null
+  }
 
   var top = bottom = left = right = 0
 
@@ -293,16 +308,25 @@ function applyPaddingToLayerWithContainerRect(padding, layer, containerRect) {
     if (conditions.minHeight && parseFloat(height) < parseFloat(conditions.minHeight)) {
       height = parseFloat(conditions.minHeight)
     }
+
+    // Calculate offset, if there was a max/min width/height
+    var xOffset = (width - containerRect.width() - padding.left - padding.right) / 2.0
+    var yOffset = (height - containerRect.height() - padding.top - padding.bottom) / 2.0
+
+    x -= xOffset
+    y -= yOffset
   }
 
   // Outset the Background's frame – by the amount of Padding
-  layer.setConstrainProportions(false)
-  layer.frame().setX(x)
-  layer.frame().setY(y)
-  layer.frame().setWidth(width)
-  layer.frame().setHeight(height)
+  if (pixelFit) {
+    x = Math.round(x)
+    y = Math.round(y)
+    // width = Math.round(width)
+    // height = Math.round(height)
+  }
 
-  layer.layerDidEndResize()
+  layer.frame().setRectByIgnoringProportions(NSMakeRect(x, y, width, height))
+
 }
 
 
@@ -315,6 +339,13 @@ function getAssumedPaddingForBackgroundLayer(layer) {
   padding.right = (layer.frame().x() + layer.frame().width()) - (containerRect.x() + containerRect.width())
   padding.top = containerRect.y() - layer.frame().y()
   padding.bottom = (layer.frame().y() + layer.frame().height()) - (containerRect.y() + containerRect.height())
+
+  if (pixelFit) {
+    padding.left = Math.round(padding.left)
+    padding.right = Math.round(padding.right)
+    padding.top = Math.round(padding.top)
+    padding.bottom = Math.round(padding.bottom)
+  }
 
   return padding
 }

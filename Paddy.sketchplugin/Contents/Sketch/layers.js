@@ -330,20 +330,12 @@ function buildTreeMap(layers) {
   layers.forEach(function(layer) {
     fullDepthMap.push(layer)
 
-    // // Add all it's children, if the layer was a group
-    // if (layer.isMemberOfClass(MSLayerGroup)) {
-    //   fullDepthMap = fullDepthMap.concat(getAllChildrenForGroup(layer))
-    // }
-
     var parent = layer.parentGroup()
     while(parent) {
       fullDepthMap.push(parent)
       parent = parent.parentGroup()
     }
   })
-
-  log('FULL DEPTH', fullDepthMap)
-
 
   // Sort the layers based on their depth
   var sorted = fullDepthMap.sort(function(a, b) {
@@ -362,8 +354,6 @@ function buildTreeMap(layers) {
     }
     return (layerTreeDepth(a) < layerTreeDepth(b) ? 1 : -1)
   })
-
-  log('SORTED', sorted)
 
   // Remove duplicates
   var unique = []
@@ -454,4 +444,32 @@ function unselect(layer) {
  */
 function select(layer) {
   layer.select_byExtendingSelection(true, true)
+}
+
+
+function resizeLayer(layer) {
+  // A hack for resizing – just in case Craft's Duplicator is installed
+  // Select a 'Fake' layer, so that when we 'resize', the selection is not empty
+  var nullLayer = MSLayer.alloc().init()
+  nullLayer.name = "NULL LAYER"
+  document.currentPage().addLayer(nullLayer)
+  nullLayer.select_byExtendingSelection(true, true)
+
+  layer.layerDidEndResize()
+
+  nullLayer.select_byExtendingSelection(false, false)
+  nullLayer.removeFromParent()
+}
+
+function pixelFitLayer(layer) {
+  if (!pixelFit) return
+
+  var frame = layer.frame()
+  var x = Math.round(frame.x())
+  var y = Math.round(frame.y())
+  var width = frame.width()//Math.round(frame.width())
+  var height = frame.height()//Math.round(frame.height())
+
+
+  layer.frame().setRectByIgnoringProportions(NSMakeRect(x, y, width, height))
 }

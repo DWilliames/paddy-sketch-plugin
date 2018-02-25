@@ -65,7 +65,13 @@ function saveSpacingToLayer(spacing, layer) {
  * Return if a layer already has spacing associated
  */
 function layerHasSpacing(layer) {
-  return canLayerHaveSpacing(layer) && layerSpacingString(layer) != null
+  if (!layer) return false
+  if (!canLayerHaveSpacing(layer)) return false
+
+  var spacingString = layerSpacingString(layer)
+  if (!spacingString) return false
+
+  return (spacingFromString(spacingString) != null)
 }
 
 
@@ -137,6 +143,11 @@ function spacingFromString(string) {
     log(1, 'Layout', layout)
     log(1, 'Spacing', space)
 
+    if (parseFloat(space).toString() != space) {
+      log(2, 'Spacing is invalid', string)
+      return null
+    }
+
     spacing.layout = layout
     spacing.space = space
 
@@ -144,12 +155,21 @@ function spacingFromString(string) {
   }
 
   var alignments = []
+  var invalidAlignment = false
   values.forEach(function(value) {
     var alignment = simplifyAlignment(value)
     if (alignment) {
       alignments.push(alignment)
+    } else if (value) {
+      invalidAlignment = true
+      return
     }
   })
+
+  if (invalidAlignment) {
+    log(2, 'Alignments is invalid', string)
+    return null
+  }
 
   if (alignments.length > 0) {
     spacing.align = alignments
@@ -273,8 +293,10 @@ function applySpacingToGroup(spacing, groupLayer) {
     if(previousFrame.maxX() > maxX)
       maxX = previousFrame.maxX()
 
-    if(previousFrame.maxY() < maxY)
+    if(previousFrame.maxY() > maxY)
       maxY = previousFrame.maxY()
+
+    pixelFitLayer(layer)
 
   })
 
@@ -299,6 +321,8 @@ function applySpacingToGroup(spacing, groupLayer) {
         var mid = minY + (maxY - minY) / 2.0
         layer.frame().setMidY(mid)
       }
+
+      pixelFitLayer(layer)
     })
   }
 
@@ -306,11 +330,17 @@ function applySpacingToGroup(spacing, groupLayer) {
 
   log(2, 'Sorted layers', sortedLayers)
 
+  if (pixelFit) {
+    beginningX = Math.round(beginningX)
+    beginningY = Math.round(beginningY)
+  }
+
   // Reset the position to be the same
   groupLayer.frame().setX(beginningX)
   groupLayer.frame().setY(beginningY)
 
-  groupLayer.layerDidEndResize()
+  resizeLayer(groupLayer)
+
 }
 
 
