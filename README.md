@@ -4,23 +4,6 @@
 
 ---
 
-<a href="#user-content-padding">
-  <img src=".images/link-padding.svg" alt="Go to 'Layer padding'" width="250"/>
-</a>
-<a href="#user-content-applied">
-  <img src=".images/link-applied.svg" alt="Go to 'Automatically applied'" width="250"/>
-</a>
-<a href="#user-content-symbols">
-  <img src=".images/link-symbols.svg" alt="Go to 'Symbol support'" width="250"/>
-</a>
-<a href="#user-content-spacing">
-  <img src=".images/link-spacing.svg" alt="Go to 'Spacing & distribution'" width="250"/>
-</a>
-<a href="#user-content-alignment">
-  <img src=".images/link-alignment.svg" alt="Go to 'Auto alignment'" width="250"/>
-</a>
-
----
 
 ![Using Paddy](.images/GIFs/main.gif)
 
@@ -42,6 +25,27 @@ It will definitely help me to be able to support this plugin further.
 </a>
 
 Follow [@davidwilliames](https://twitter.com/davidwilliames) on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/davidwilliames.svg?style=social&label=Follow)]()
+
+---
+
+<a href="#user-content-padding">
+  <img src=".images/link-padding.svg" alt="Go to 'Layer padding'" width="250"/>
+</a>
+<a href="#user-content-applied">
+  <img src=".images/link-applied.svg" alt="Go to 'Automatically applied'" width="250"/>
+</a>
+<a href="#user-content-symbols">
+  <img src=".images/link-symbols.svg" alt="Go to 'Symbol support'" width="250"/>
+</a>
+<a href="#user-content-spacing">
+  <img src=".images/link-spacing.svg" alt="Go to 'Spacing & distribution'" width="250"/>
+</a>
+<a href="#user-content-alignment">
+  <img src=".images/link-alignment.svg" alt="Go to 'Auto alignment'" width="250"/>
+</a>
+
+
+### [📖 View change log / release notes](https://github.com/DWilliames/paddy-sketch-plugin/releases)
 
 ---
 
