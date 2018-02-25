@@ -515,11 +515,44 @@ function updatePaddingAndSpacingForLayer(layer) {
     var bg = getBackgroundForLayer(layer)
     updatePaddingForLayerBG(bg)
 
-    // Update all the instance of the symbol
-    var treeMap = buildTreeMap(layer.allInstances())
-    treeMap.forEach(function(layer){
-      updatePaddingAndSpacingForLayer(layer)
-    })
+    var complete = 0
+    var total = layer.allInstances().count()
+
+    var updateInstances = true
+
+    if (total >= 10) {
+      // if there are more than 10 to update... ask the user if this is what they want to do
+
+      var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())
+
+      var alert = NSAlert.alloc().init()
+      var title = 'Update padding for all ' + total + ' instances?'
+      var message = 'There\'s ' + total + ' instances of this symbol that should have their padding recalculated – do you want to do this now? \n\nIt can take up to a couple of minutes if there are quite a lot.'
+
+      alert.setIcon(iconImage)
+    	alert.setMessageText(title)
+    	alert.setInformativeText(message)
+    	alert.addButtonWithTitle("Update now")
+    	alert.addButtonWithTitle("Do it later")
+
+      updateInstances = (alert.runModal() == '1000')
+    }
+
+
+    if (updateInstances) {
+      // Said 'Do it now'
+      // Update all the instance of the symbol
+      var treeMap = buildTreeMap(layer.allInstances())
+
+      treeMap.forEach(function(layer){
+        document.showMessage('Updating instances (' + complete + '/' + total + ')')
+        print('Updating instances (' + complete + '/' + total + ')')
+        updatePaddingAndSpacingForLayer(layer)
+        complete++
+      })
+
+      document.showMessage('Updated ' + total + ' instances')
+    }
 
   }
 

@@ -367,6 +367,7 @@ function buildTreeMap(layers) {
   }
 
   log('UNIQUE', unique)
+  print(unique)
 
   return unique
 }
@@ -451,12 +452,14 @@ function resizeLayer(layer) {
   // A hack for resizing – just in case Craft's Duplicator is installed
   // Select a 'Fake' layer, so that when we 'resize', the selection is not empty
   var nullLayer = MSLayer.alloc().init()
+  nullLayer.name = "NULL LAYER"
   document.currentPage().addLayer(nullLayer)
   nullLayer.select_byExtendingSelection(true, true)
 
   layer.layerDidEndResize()
 
-  document.currentPage().removeLayer(nullLayer)
+  nullLayer.select_byExtendingSelection(false, false)
+  nullLayer.removeFromParent()
 }
 
 function pixelFitLayer(layer) {
