@@ -308,6 +308,13 @@ function applyPaddingToLayerWithContainerRect(padding, layer, containerRect) {
     if (conditions.minHeight && parseFloat(height) < parseFloat(conditions.minHeight)) {
       height = parseFloat(conditions.minHeight)
     }
+
+    // Calculate offset, if there was a max/min width/height
+    var xOffset = (width - containerRect.width() - padding.left - padding.right) / 2.0
+    var yOffset = (height - containerRect.height() - padding.top - padding.bottom) / 2.0
+
+    x -= xOffset
+    y -= yOffset
   }
 
   // Outset the Background's frame – by the amount of Padding
