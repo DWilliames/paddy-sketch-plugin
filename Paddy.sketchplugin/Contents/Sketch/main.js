@@ -21,6 +21,77 @@ var pixelFit = NSUserDefaults.standardUserDefaults().boolForKey('tryToFitToPixel
 //   Plugin command handlers
 // ****************************
 
+// Debugging all actions
+function allActions(context) {
+  if (ACTIONS) {
+    print(context)
+  }
+}
+
+function detachInstance(context) {
+
+  startBenchmark()
+
+  document = context.actionContext.document
+
+  var action = context.actionContext.action
+
+  if (context.action == 'ConvertSymbolOrDetachInstances.begin') {
+
+    var symbolDetails = {}
+
+    // Save the master of the symbol to the action for reference
+    if (action.selectedLayers().containsOneLayer()) {
+      var layer = action.selectedLayers().firstLayer()
+
+      symbolDetails = {
+        master: layer.symbolMaster().objectID(),
+        x: layer.frame().x(),
+        y: layer.frame().y()
+      }
+    }
+
+    saveValueWithKeyToDoc(symbolDetails, 'preDetachSymbolMaster')
+  } else {
+    var masterDetails = getValueWithKeyFromDoc('preDetachSymbolMaster')
+
+    if (!masterDetails || !masterDetails.master) return
+    // Let's check if all the Text layers of the Symbol master are 'auto'
+    // If so, let's readjust them to auto now
+    var masterSymbol = document.documentData().layerWithID(masterDetails.master)
+    if (masterSymbol && action.selectedLayers().containsOneLayer()) {
+      var allAuto = true
+
+      masterSymbol.children().forEach(function(layer) {
+        if (layer.isMemberOfClass(MSTextLayer)) {
+          if (allAuto && layer.textBehaviour() == 1) {
+            allAuto = false
+            return
+          }
+        }
+      })
+
+      if (allAuto) {
+        var detachedGroup = action.selectedLayers().firstLayer()
+
+        detachedGroup.children().forEach(function(layer) {
+          layer.textBehaviour = 0
+        })
+
+        var treeMap = buildTreeMap(getAllChildrenForGroup(detachedGroup))
+        treeMap.forEach(function(layer){
+          updatePaddingAndSpacingForLayer(layer)
+        })
+
+        detachedGroup.frame().setX(masterDetails.x)
+        detachedGroup.frame().setY(masterDetails.y)
+      }
+    }
+  }
+
+  endBenchmark()
+
+}
 
 function autoApplyPadding(context) {
   applyPadding(context, false)
@@ -207,7 +278,11 @@ function applySpacing(context) {
 function textChanged(context) {
   document = MSDocument.currentDocument()
   log('RUN PLUGIN BECAUSE TEXT CHANGED')
-  updatePaddingAndSpacingForLayer(context.actionContext.layer)
+
+  var treeMap = buildTreeMap([context.actionContext.layer])
+  treeMap.forEach(function(layer){
+    updatePaddingAndSpacingForLayer(layer)
+  })
 }
 
 
@@ -292,6 +367,7 @@ function selectionChanged(context) {
           if (!stringArraysEqual(previousProps.children, parentLayers)) {
             // PROBABLY duplicated a layer
             persistentLayers.push(parent.objectID())
+            persistentLayers.push(layer.objectID()) // Add the layer too, in case it's a symbol
           }
         }
       }
@@ -320,6 +396,8 @@ function selectionChanged(context) {
   log('Update every layer that WAS selected', context.actionContext.oldSelection)
 
   context.actionContext.oldSelection.forEach(function(layer) {
+
+    // if (contains(layers, layer)) return
 
     var layerProps = initialSelectedProps.objectForKey(layer.objectID())
 

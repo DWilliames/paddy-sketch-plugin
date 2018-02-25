@@ -2,6 +2,7 @@
 // Whether to show logging or not
 var DEBUG = false // FALSE for prod
 var TIMER = true // FALSE for prod
+var ACTIONS = false // FALSE for prod
 
 /**
  * Log a bunch of values
@@ -123,13 +124,18 @@ function getValueWithKeyFromDoc(key) {
   var docData = document.documentData()
   var pluginIdentifier = plugin.identifier()
 
-  return command.valueForKey_onLayer_forPluginIdentifier(key, docData, pluginIdentifier)
+  // print('Retrieving value – ' + key)
+  var value = command.valueForKey_onLayer_forPluginIdentifier(key, docData, pluginIdentifier)
+  // print(value)
+  return value
 }
 
 
 function saveValueWithKeyToDoc(value, key) {
   var docData = document.documentData()
   var pluginIdentifier = plugin.identifier()
+  // print('Saving value – ' + key)
+  // print(value)
   command.setValue_forKey_onLayer_forPluginIdentifier(value, key, docData, pluginIdentifier)
 }
 

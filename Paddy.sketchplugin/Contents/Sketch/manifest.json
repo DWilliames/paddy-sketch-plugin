@@ -41,7 +41,9 @@
       "handlers": {
         "actions": {
             "SelectionChanged.finish": "selectionChanged",
-            "TextChanged.finish": "textChanged"
+            "TextChanged.finish": "textChanged",
+            "ConvertSymbolOrDetachInstances": "detachInstance",
+            "*": "allActions"
         }
       }
     }
