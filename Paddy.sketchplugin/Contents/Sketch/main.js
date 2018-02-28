@@ -371,6 +371,7 @@ function selectionChanged(context) {
           }
         }
       }
+      layer.select_byExpandingSelection(true,true); // restore the new selection
     })
 
     log('Initial selected Props', JSON.stringify(initialSelectedProps))
