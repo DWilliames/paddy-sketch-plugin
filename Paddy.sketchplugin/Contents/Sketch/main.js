@@ -292,8 +292,11 @@ function textChanged(context) {
 var layers = []
 
 function selectionChanged(context) {
+
   startBenchmark()
   document = context.actionContext.document
+
+  var timestamp = NSDate.timeIntervalSinceReferenceDate()
 
   // Only include layers that had properties change
   // Particularly if their frame or position changed
@@ -343,9 +346,6 @@ function selectionChanged(context) {
       }
 
       initialSelectedProps[layer.objectID()] = props
-
-
-      // initialSelectedProps.setObject_forKey(props, layer.objectID())
 
       if (layer.parentGroup()) {
         var parent = layer.parentGroup()
@@ -465,6 +465,20 @@ function selectionChanged(context) {
   })
 
   endBenchmark()
+
+
+  // Remove any unecessary history – so that 'command + z' works
+  var history = document.historyMaker().history()
+  var moments = history.moments()
+
+  var filteredMoments = []
+  moments.forEach(function(moment) {
+    if (moment.timestamp() <= timestamp) {
+      filteredMoments.push(moment)
+    }
+  })
+
+  history.moments = filteredMoments
 }
 
 
