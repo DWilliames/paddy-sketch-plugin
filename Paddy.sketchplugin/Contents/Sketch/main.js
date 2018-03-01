@@ -243,9 +243,11 @@ function applyPadding(context, promptUser) {
 function applySpacing(context) {
   var layers = context.selection
 
-  // We either selected Groups for spacing, or layers for padding
-  var selectedGroupsForSpacing = layers.every(function(layer) {
-    return canLayerHaveSpacing(layer)
+  var selectedGroupsForSpacing = []
+  layers.forEach(function(layer) {
+    if (canLayerHaveSpacing(layer)) {
+      selectedGroupsForSpacing.push(layer)
+    }
   })
 
   log(selectedGroupsForSpacing ? '** Selected layers for spacing' : 'Did not select layers for spacing')
@@ -258,7 +260,7 @@ function applySpacing(context) {
   }
 
   // Existing spacing
-  var existingSpacing = layers.find(function(layer) {
+  var existingSpacing = selectedGroupsForSpacing.find(function(layer) {
     log('Checking if layer has spacing: ' + layer)
     return layerHasSpacing(layer)
   })
@@ -278,7 +280,7 @@ function applySpacing(context) {
   var spacing = spacingFromString(spacingString)
   log(1, 'Will save spacing to layers', JSON.stringify(spacing), layers)
 
-  layers.forEach(function(layer) {
+  selectedGroupsForSpacing.forEach(function(layer) {
     log(2, 'Will save spacing to layer', layer)
     saveSpacingToLayer(spacing, layer)
   })
@@ -528,13 +530,13 @@ function updatePaddingAndSpacingForLayer(layer) {
   // GROUPS = Spacing
   if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup) || layer.isMemberOfClass(MSPage)) {
 
-    var bg = getBackgroundForLayer(layer)
-    updatePaddingForLayerBG(bg)
-
     if (layerHasSpacing(layer)) {
       var spacing = getSpacingFromLayer(layer)
       applySpacingToGroup(spacing, layer)
     }
+
+    var bg = getBackgroundForLayer(layer)
+    updatePaddingForLayerBG(bg)
 
   }
 
