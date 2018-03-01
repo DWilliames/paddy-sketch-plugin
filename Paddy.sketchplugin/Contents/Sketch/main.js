@@ -303,6 +303,8 @@ var layers = []
 
 function selectionChanged(context) {
 
+  layers = []
+
   startBenchmark()
   document = context.actionContext.document
 
@@ -379,8 +381,6 @@ function selectionChanged(context) {
           }
         }
       }
-
-      layer.select_byExpandingSelection(true, true)
     })
 
     log('Initial selected Props', JSON.stringify(initialSelectedProps))
@@ -388,6 +388,11 @@ function selectionChanged(context) {
     saveValueWithKeyToDoc(initialSelectedProps, previouslySelectedKey)
     saveValueWithKeyToDoc(initialParentProps, previousParentKey)
     saveValueWithKeyToDoc(persistentLayers, persistentLayersKey)
+
+    context.actionContext.newSelection.forEach(function(layer) {
+      layer.select_byExpandingSelection(true, true)
+    })
+
 
     return
   }
@@ -400,6 +405,7 @@ function selectionChanged(context) {
   persistentLayers.forEach(function(layerID) {
     var layer = docData.layerWithID(layerID)
     layers.push(layer)
+    log('Added persistent layer', layer)
   })
 
   // Update the padding for every layer that was previously selected
@@ -514,9 +520,14 @@ function updatePaddingAndSpacingForLayer(layer) {
   // SYMBOL MASTER
   else if (layer.isMemberOfClass(MSSymbolMaster)) {
     var bg = getBackgroundForLayer(layer)
-    if (!bg) return
+    if (bg) {
+      updatePaddingForLayerBG(bg)
+    } else {
+      bg = backgroundLayerForSymbol(layer)
+      log(1, 'Getting alternate bg', bg)
+    }
 
-    updatePaddingForLayerBG(bg)
+    if (!bg) return
 
     var complete = 0
     var total = layer.allInstances().count()
@@ -542,7 +553,7 @@ function updatePaddingAndSpacingForLayer(layer) {
     }
 
 
-    if (updateInstances) {
+    if (updateInstances && total > 0) {
       // Said 'Do it now'
       // Update all the instance of the symbol
       var treeMap = buildTreeMap(layer.allInstances())
