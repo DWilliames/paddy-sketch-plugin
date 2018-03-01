@@ -2,7 +2,7 @@
 // Whether to show logging or not
 var DEBUG = false // FALSE for prod
 var TIMER = false // FALSE for prod
-var ACTIONS = false // FALSE for prod
+var PERSISTENT = true // TRUE for prod
 
 /**
  * Log a bunch of values
@@ -117,22 +117,30 @@ var previouslySelectedKey = 'previousSelectedProps'
 var previousParentKey = 'previousParentProps'
 var persistentLayersKey = 'persistentLayers'
 
+var persistentData = {}
+
 
 // Set / Get values from Doc
 
 function getValueWithKeyFromDoc(key) {
-  var docData = document.documentData()
-  var pluginIdentifier = plugin.identifier()
+  var docData = persistentData[document.hash()]
+  if (!docData) {
+    return
+  }
 
-  return command.valueForKey_onLayer_forPluginIdentifier(key, docData, pluginIdentifier)
+  return docData[key]
 }
 
 
 function saveValueWithKeyToDoc(value, key) {
-  var docData = document.documentData()
-  var pluginIdentifier = plugin.identifier()
+  var docData = persistentData[document.hash()]
+  if (!docData) {
+    docData = {}
+  }
 
-  command.setValue_forKey_onLayer_forPluginIdentifier(value, key, docData, pluginIdentifier)
+  docData[key] = value
+
+  persistentData[document.hash()] = docData
 }
 
 
@@ -146,4 +154,17 @@ function saveValueWithKeyToLayer(value, key, layer) {
 function getValueForKeyFromLayer(key, layer) {
   var pluginIdentifier = plugin.identifier()
   return command.valueForKey_onLayer_forPluginIdentifier(key, layer, pluginIdentifier)
+}
+
+
+// User deafults
+
+var defaults = NSUserDefaults.standardUserDefaults()
+
+function saveValueWithKeyToDefaults(value, key) {
+  defaults.setObject_forKey(value, key)
+}
+
+function getValueWithKeyFromDefaults(key) {
+  return defaults.objectForKey(key)
 }

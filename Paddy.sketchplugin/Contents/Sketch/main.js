@@ -3,7 +3,7 @@
 @import 'spacing.js'
 @import 'layers.js'
 @import 'symbols.js'
-
+@import 'async.js'
 
 // Global initalised variables from 'context'
 var selection, document, plugin, app, iconImage, command
@@ -12,10 +12,13 @@ function onSetUp(context) {
   document = context.document
   plugin = context.plugin
   command = context.command
+
+  // loadFramework("SketchAsync", "DWSketchAsync")
 }
 
 // Used for determining whether to round to 'whole pixels'
 var pixelFit = NSUserDefaults.standardUserDefaults().boolForKey('tryToFitToPixelBounds')
+var automated = !NSUserDefaults.standardUserDefaults().boolForKey('PaddyNoAutomation')
 
 // ****************************
 //   Plugin command handlers
@@ -23,8 +26,18 @@ var pixelFit = NSUserDefaults.standardUserDefaults().boolForKey('tryToFitToPixel
 
 // Debugging all actions
 function allActions(context) {
-  if (ACTIONS) {
-    print(context)
+  print(context)
+}
+
+function toggleAutomaticUpdating(context) {
+  NSUserDefaults.standardUserDefaults().setBool_forKey(automated, 'PaddyNoAutomation')
+
+  automated = !automated
+
+  if (!automated) {
+    context.document.showMessage('Paddy automation: disabled ❌')
+  } else {
+    context.document.showMessage('Paddy automation: enabled ✅')
   }
 }
 
@@ -105,11 +118,13 @@ function applyPadding(context, promptUser) {
   log('RUN PLUGIN')
   document = context.document
 
+  var selection = context.selection
+
   // From the selections — get the relevent BG layers
   var uniqueLayers = []
 
   // PADDING
-  context.selection.forEach(function(layer) {
+  selection.forEach(function(layer) {
     if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup)) {
       uniqueLayers.push(layer)
     } else if (!doesArrayContainSibling(uniqueLayers, layer)) {
@@ -219,14 +234,20 @@ function applyPadding(context, promptUser) {
   })
 
   log('DONE!')
+
+  selection.forEach(function(layer) {
+    layer.select_byExtendingSelection(true, true)
+  })
 }
 
 function applySpacing(context) {
   var layers = context.selection
 
-  // We either selected Groups for spacing, or layers for padding
-  var selectedGroupsForSpacing = layers.every(function(layer) {
-    return canLayerHaveSpacing(layer)
+  var selectedGroupsForSpacing = []
+  layers.forEach(function(layer) {
+    if (canLayerHaveSpacing(layer)) {
+      selectedGroupsForSpacing.push(layer)
+    }
   })
 
   log(selectedGroupsForSpacing ? '** Selected layers for spacing' : 'Did not select layers for spacing')
@@ -239,7 +260,7 @@ function applySpacing(context) {
   }
 
   // Existing spacing
-  var existingSpacing = layers.find(function(layer) {
+  var existingSpacing = selectedGroupsForSpacing.find(function(layer) {
     log('Checking if layer has spacing: ' + layer)
     return layerHasSpacing(layer)
   })
@@ -259,7 +280,7 @@ function applySpacing(context) {
   var spacing = spacingFromString(spacingString)
   log(1, 'Will save spacing to layers', JSON.stringify(spacing), layers)
 
-  layers.forEach(function(layer) {
+  selectedGroupsForSpacing.forEach(function(layer) {
     log(2, 'Will save spacing to layer', layer)
     saveSpacingToLayer(spacing, layer)
   })
@@ -273,6 +294,10 @@ function applySpacing(context) {
   })
 
   log('DONE!')
+
+  layers.forEach(function(layer) {
+    layer.select_byExtendingSelection(true, true)
+  })
 }
 
 function textChanged(context) {
@@ -285,15 +310,28 @@ function textChanged(context) {
   })
 }
 
-
-
 // SELECTION
 
 var layers = []
 
 function selectionChanged(context) {
+
+  if (!automated) {
+    COScript.currentCOScript().setShouldKeepAround(false)
+    return
+  }
+
+  if (PERSISTENT) {
+    COScript.currentCOScript().setShouldKeepAround(true)
+  }
+
+  runInBackground(function() {
+
+  layers = []
+
   startBenchmark()
   document = context.actionContext.document
+
 
   // Only include layers that had properties change
   // Particularly if their frame or position changed
@@ -344,9 +382,6 @@ function selectionChanged(context) {
 
       initialSelectedProps[layer.objectID()] = props
 
-
-      // initialSelectedProps.setObject_forKey(props, layer.objectID())
-
       if (layer.parentGroup()) {
         var parent = layer.parentGroup()
 
@@ -379,6 +414,11 @@ function selectionChanged(context) {
     saveValueWithKeyToDoc(initialParentProps, previousParentKey)
     saveValueWithKeyToDoc(persistentLayers, persistentLayersKey)
 
+    context.actionContext.newSelection.forEach(function(layer) {
+      layer.select_byExpandingSelection(true, true)
+    })
+
+
     return
   }
 
@@ -390,6 +430,7 @@ function selectionChanged(context) {
   persistentLayers.forEach(function(layerID) {
     var layer = docData.layerWithID(layerID)
     layers.push(layer)
+    log('Added persistent layer', layer)
   })
 
   // Update the padding for every layer that was previously selected
@@ -399,7 +440,8 @@ function selectionChanged(context) {
 
     // if (contains(layers, layer)) return
 
-    var layerProps = initialSelectedProps.objectForKey(layer.objectID())
+    // var layerProps = initialSelectedProps.objectForKey(layer.objectID())
+    var layerProps = initialSelectedProps[layer.objectID()]
 
     if (layerProps) {
       var frame = layer.absoluteRect()//rectForLayer(layer)
@@ -430,7 +472,7 @@ function selectionChanged(context) {
       } else if (!sameOrigin) {
         log(2, 'Frame changed position', layer)
         layers.push(layer.parentGroup())
-      } else if (layerProps.objectForKey('name') != layer.name()) {
+      } else if (layerProps.name != layer.name()) {
         log(2, 'Changed name', layer)
         layers.push(layer)
       } else if (layer.isMemberOfClass(MSSymbolInstance) && overrides != layer.overrides()) {
@@ -452,19 +494,24 @@ function selectionChanged(context) {
   saveValueWithKeyToDoc({}, previousParentKey)
   saveValueWithKeyToDoc([], persistentLayersKey)
 
-  if (layers.length == 0) {
-    endBenchmark()
-    return
+  if (layers.length > 0) {
+    // Build a tree map of layers that need updating
+    // This includes all parent layer groups
+    var treeMap = buildTreeMap(layers)
+    treeMap.forEach(function(layer){
+      updatePaddingAndSpacingForLayer(layer)
+    })
+
   }
 
-  // Build a tree map of layers that need updating
-  // This includes all parent layer groups
-  var treeMap = buildTreeMap(layers)
-  treeMap.forEach(function(layer){
-    updatePaddingAndSpacingForLayer(layer)
+  endBenchmark()
+
+  if (PERSISTENT) {
+    COScript.currentCOScript().setShouldKeepAround(false)
+  }
+
   })
 
-  endBenchmark()
 }
 
 
@@ -483,71 +530,85 @@ function updatePaddingAndSpacingForLayer(layer) {
   // GROUPS = Spacing
   if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup) || layer.isMemberOfClass(MSPage)) {
 
-    var bg = getBackgroundForLayer(layer)
-    updatePaddingForLayerBG(bg)
-
     if (layerHasSpacing(layer)) {
       var spacing = getSpacingFromLayer(layer)
       applySpacingToGroup(spacing, layer)
     }
+
+    var bg = getBackgroundForLayer(layer)
+    updatePaddingForLayerBG(bg)
 
   }
 
   // SYMBOL INSTANCE
   else if (layer.isMemberOfClass(MSSymbolInstance)) {
 
-    updateForSymbolInstance(layer)
+    runOnMainThread(function(){
+      updateForSymbolInstance(layer)
 
-    var bg = getBackgroundForLayer(layer)
-    updatePaddingForLayerBG(bg)
+      var bg = getBackgroundForLayer(layer)
+      updatePaddingForLayerBG(bg)
+    })
+
+
   }
 
   // SYMBOL MASTER
   else if (layer.isMemberOfClass(MSSymbolMaster)) {
-    var bg = getBackgroundForLayer(layer)
-    updatePaddingForLayerBG(bg)
-
-    var complete = 0
-    var total = layer.allInstances().count()
-
-    var updateInstances = true
-
-    if (total >= 10) {
-      // if there are more than 10 to update... ask the user if this is what they want to do
-
-      var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())
-
-      var alert = NSAlert.alloc().init()
-      var title = 'Update padding for all ' + total + ' instances?'
-      var message = 'There\'s ' + total + ' instances of this symbol that should have their padding recalculated – do you want to do this now? \n\nIt can take up to a couple of minutes if there are quite a lot.'
-
-      alert.setIcon(iconImage)
-    	alert.setMessageText(title)
-    	alert.setInformativeText(message)
-    	alert.addButtonWithTitle("Update now")
-    	alert.addButtonWithTitle("Do it later")
-
-      updateInstances = (alert.runModal() == '1000')
-    }
-
-
-    if (updateInstances) {
-      // Said 'Do it now'
-      // Update all the instance of the symbol
-      var treeMap = buildTreeMap(layer.allInstances())
-
-      treeMap.forEach(function(layer){
-        updatePaddingAndSpacingForLayer(layer)
-        complete++
-      })
-
-      var updatedMessage = 'Updated ' + total + ' instance'
-      if (total > 1) {
-        updatedMessage += 's'
+    runOnMainThread(function(){
+      var bg = getBackgroundForLayer(layer)
+      if (bg) {
+        updatePaddingForLayerBG(bg)
+      } else {
+        bg = backgroundLayerForSymbol(layer)
+        log(1, 'Getting alternate bg', bg)
       }
 
-      document.showMessage(updatedMessage)
-    }
+      if (!bg) return
+
+      var complete = 0
+      var total = layer.allInstances().count()
+
+      var updateInstances = true
+
+      if (total >= 5) {
+        // if there are more than 10 to update... ask the user if this is what they want to do
+
+        var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())
+
+        var alert = NSAlert.alloc().init()
+        var title = 'Update padding for all ' + total + ' instances?'
+        var message = 'There\'s ' + total + ' instances of this symbol that should have their padding recalculated – do you want to do this now? \n\nIt can take up to a couple of minutes if there are quite a lot.'
+
+        alert.setIcon(iconImage)
+      	alert.setMessageText(title)
+      	alert.setInformativeText(message)
+      	alert.addButtonWithTitle("Update now")
+      	alert.addButtonWithTitle("Do it later")
+
+        updateInstances = (alert.runModal() == '1000')
+      }
+
+
+      if (updateInstances && total > 0) {
+        // Said 'Do it now'
+        // Update all the instance of the symbol
+        var treeMap = buildTreeMap(layer.allInstances())
+
+        treeMap.forEach(function(layer){
+          updatePaddingAndSpacingForLayer(layer)
+          complete++
+        })
+
+        var updatedMessage = 'Paddy: updated ' + total + ' instance'
+        if (total > 1) {
+          updatedMessage += 's'
+        }
+
+        document.showMessage(updatedMessage)
+      }
+
+    })
 
   }
 

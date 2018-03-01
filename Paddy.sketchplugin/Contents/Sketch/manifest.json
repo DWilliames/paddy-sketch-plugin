@@ -4,7 +4,7 @@
   "author": "David Williames",
   "homepage": "https://github.com/DWilliames/paddy-sketch-plugin",
   "appcast": "https://raw.githubusercontent.com/DWilliames/paddy-sketch-plugin/master/.appcast.xml",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "identifier": "com.davidwilliames.sketch-plugin.paddy",
   "compatibleVersion": 47,
   "bundleVersion": 1,
@@ -37,6 +37,14 @@
       "icon": "Icons/spacing.png"
     },
     {
+      "name": "Enable / disable automatic updating",
+      "identifier": "toggleAutomaticUpdating",
+      "script": "main.js",
+      "handler": "toggleAutomaticUpdating",
+      "description": "Toggle automated updating for Paddy",
+      "icon": "Icons/spacing.png"
+    },
+    {
       "script":"main.js",
       "handlers": {
         "actions": {
@@ -52,7 +60,9 @@
       "promptToApplyPadding",
       "autoApplyPadding",
       "-",
-      "applySpacing"
+      "applySpacing",
+      "-",
+      "toggleAutomaticUpdating"
     ]
   }
 }
