@@ -9,9 +9,14 @@ function loadFramework(name, className) {
 
 
 
-loadFramework("SketchAsync", "SketchAsync")
+loadFramework("SketchAsync", "DWSketchAsync")
 
 function runInBackground(block) {
   var target = COSTarget.targetWithJSFunction(block)
-  SketchAsync.alloc().init().runInBackground(target)
+  DWSketchAsync.runInBackground(target)
+}
+
+function runOnMain(block) {
+  var target = COSTarget.targetWithJSFunction(block)
+  DWSketchAsync.runInBackground(target)
 }

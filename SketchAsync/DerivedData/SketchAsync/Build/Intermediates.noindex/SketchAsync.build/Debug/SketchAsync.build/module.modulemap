@@ -1,6 +1,0 @@
-framework module SketchAsync {
-  umbrella header "SketchAsync.h"
-
-  export *
-  module * { export * }
-}
