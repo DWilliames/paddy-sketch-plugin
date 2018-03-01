@@ -12,6 +12,10 @@ function onSetUp(context) {
   document = context.document
   plugin = context.plugin
   command = context.command
+
+  if (PERSISTENT) {
+    coscript.setShouldKeepAround(true)
+  }
 }
 
 // Used for determining whether to round to 'whole pixels'
@@ -23,9 +27,7 @@ var pixelFit = NSUserDefaults.standardUserDefaults().boolForKey('tryToFitToPixel
 
 // Debugging all actions
 function allActions(context) {
-  if (ACTIONS) {
-    print(context)
-  }
+  print(context)
 }
 
 function detachInstance(context) {
@@ -105,11 +107,13 @@ function applyPadding(context, promptUser) {
   log('RUN PLUGIN')
   document = context.document
 
+  var selection = context.selection
+
   // From the selections — get the relevent BG layers
   var uniqueLayers = []
 
   // PADDING
-  context.selection.forEach(function(layer) {
+  selection.forEach(function(layer) {
     if (layer.isMemberOfClass(MSLayerGroup) || layer.isMemberOfClass(MSArtboardGroup)) {
       uniqueLayers.push(layer)
     } else if (!doesArrayContainSibling(uniqueLayers, layer)) {
@@ -219,6 +223,10 @@ function applyPadding(context, promptUser) {
   })
 
   log('DONE!')
+
+  selection.forEach(function(layer) {
+    layer.select_byExtendingSelection(true, true)
+  })
 }
 
 function applySpacing(context) {
@@ -273,6 +281,10 @@ function applySpacing(context) {
   })
 
   log('DONE!')
+
+  layers.forEach(function(layer) {
+    layer.select_byExtendingSelection(true, true)
+  })
 }
 
 function textChanged(context) {
@@ -285,8 +297,6 @@ function textChanged(context) {
   })
 }
 
-
-
 // SELECTION
 
 var layers = []
@@ -295,8 +305,6 @@ function selectionChanged(context) {
 
   startBenchmark()
   document = context.actionContext.document
-
-  var timestamp = NSDate.timeIntervalSinceReferenceDate()
 
   // Only include layers that had properties change
   // Particularly if their frame or position changed
@@ -371,6 +379,8 @@ function selectionChanged(context) {
           }
         }
       }
+
+      layer.select_byExpandingSelection(true, true)
     })
 
     log('Initial selected Props', JSON.stringify(initialSelectedProps))
@@ -399,7 +409,8 @@ function selectionChanged(context) {
 
     // if (contains(layers, layer)) return
 
-    var layerProps = initialSelectedProps.objectForKey(layer.objectID())
+    // var layerProps = initialSelectedProps.objectForKey(layer.objectID())
+    var layerProps = initialSelectedProps[layer.objectID()]
 
     if (layerProps) {
       var frame = layer.absoluteRect()//rectForLayer(layer)
@@ -430,7 +441,7 @@ function selectionChanged(context) {
       } else if (!sameOrigin) {
         log(2, 'Frame changed position', layer)
         layers.push(layer.parentGroup())
-      } else if (layerProps.objectForKey('name') != layer.name()) {
+      } else if (layerProps.name != layer.name()) {
         log(2, 'Changed name', layer)
         layers.push(layer)
       } else if (layer.isMemberOfClass(MSSymbolInstance) && overrides != layer.overrides()) {
@@ -463,22 +474,6 @@ function selectionChanged(context) {
   treeMap.forEach(function(layer){
     updatePaddingAndSpacingForLayer(layer)
   })
-
-  endBenchmark()
-
-
-  // Remove any unecessary history – so that 'command + z' works
-  var history = document.historyMaker().history()
-  var moments = history.moments()
-
-  var filteredMoments = []
-  moments.forEach(function(moment) {
-    if (moment.timestamp() <= timestamp) {
-      filteredMoments.push(moment)
-    }
-  })
-
-  history.moments = filteredMoments
 }
 
 
@@ -519,6 +514,8 @@ function updatePaddingAndSpacingForLayer(layer) {
   // SYMBOL MASTER
   else if (layer.isMemberOfClass(MSSymbolMaster)) {
     var bg = getBackgroundForLayer(layer)
+    if (!bg) return
+
     updatePaddingForLayerBG(bg)
 
     var complete = 0
@@ -526,7 +523,7 @@ function updatePaddingAndSpacingForLayer(layer) {
 
     var updateInstances = true
 
-    if (total >= 10) {
+    if (total >= 5) {
       // if there are more than 10 to update... ask the user if this is what they want to do
 
       var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())
@@ -555,7 +552,7 @@ function updatePaddingAndSpacingForLayer(layer) {
         complete++
       })
 
-      var updatedMessage = 'Updated ' + total + ' instance'
+      var updatedMessage = 'Paddy: updated ' + total + ' instance'
       if (total > 1) {
         updatedMessage += 's'
       }

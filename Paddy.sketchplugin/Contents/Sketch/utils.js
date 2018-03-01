@@ -1,8 +1,8 @@
 
 // Whether to show logging or not
-var DEBUG = false // FALSE for prod
-var TIMER = false // FALSE for prod
-var ACTIONS = false // FALSE for prod
+var DEBUG = true // FALSE for prod
+var TIMER = true // FALSE for prod
+var PERSISTENT = true // TRUE for prod
 
 /**
  * Log a bunch of values
@@ -117,22 +117,57 @@ var previouslySelectedKey = 'previousSelectedProps'
 var previousParentKey = 'previousParentProps'
 var persistentLayersKey = 'persistentLayers'
 
+var persistentData = {}
+
 
 // Set / Get values from Doc
 
 function getValueWithKeyFromDoc(key) {
-  var docData = document.documentData()
-  var pluginIdentifier = plugin.identifier()
+  // var docData = document.documentData()
+  // var pluginIdentifier = plugin.identifier()
+  var docData = persistentData[document.hash()]
+  if (!docData) {
+    return
+  }
 
-  return command.valueForKey_onLayer_forPluginIdentifier(key, docData, pluginIdentifier)
+  return docData[key]
+
+  // return command.valueForKey_onLayer_forPluginIdentifier(key, docData, pluginIdentifier)
+  // return persistentData[key]
 }
 
 
 function saveValueWithKeyToDoc(value, key) {
-  var docData = document.documentData()
-  var pluginIdentifier = plugin.identifier()
+  // var docData = document.documentData()
+  // var pluginIdentifier = plugin.identifier()
 
-  command.setValue_forKey_onLayer_forPluginIdentifier(value, key, docData, pluginIdentifier)
+  var docData = persistentData[document.hash()]
+  if (!docData) {
+    docData = {}
+  }
+
+  docData[key] = value
+
+  persistentData[document.hash()] = docData
+  // print(document.hash())
+
+  // print(document.historyMaker().history().currentMoment())
+
+  // var data = docData.userInfo()
+  // var pluginData = docData.userInfo()[pluginIdentifier]
+  // if (!pluginData) {
+  //   pluginData = {}
+  // }
+  //
+  // pluginData[key] = value
+  //
+  // data[pluginIdentifier] = pluginData
+  // docData.userInfo = data
+
+  // command.setValue_forKey_onLayer_forPluginIdentifier(value, key, docData, pluginIdentifier)
+  // print(document.historyMaker().history().currentMoment())
+  // command.setValue_forKey_onDocument_forPluginIdentifier(value, key, docData, pluginIdentifier)
+  //
 }
 
 
