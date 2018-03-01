@@ -3,7 +3,7 @@
 @import 'spacing.js'
 @import 'layers.js'
 @import 'symbols.js'
-
+@import 'async.js'
 
 // Global initalised variables from 'context'
 var selection, document, plugin, app, iconImage, command
@@ -12,10 +12,6 @@ function onSetUp(context) {
   document = context.document
   plugin = context.plugin
   command = context.command
-
-  if (PERSISTENT) {
-    coscript.setShouldKeepAround(true)
-  }
 }
 
 // Used for determining whether to round to 'whole pixels'
@@ -303,10 +299,15 @@ var layers = []
 
 function selectionChanged(context) {
 
+  if (PERSISTENT) {
+    COScript.currentCOScript().setShouldKeepAround(true)
+  }
+
   layers = []
 
   startBenchmark()
   document = context.actionContext.document
+
 
   // Only include layers that had properties change
   // Particularly if their frame or position changed
@@ -469,17 +470,22 @@ function selectionChanged(context) {
   saveValueWithKeyToDoc({}, previousParentKey)
   saveValueWithKeyToDoc([], persistentLayersKey)
 
-  if (layers.length == 0) {
-    endBenchmark()
-    return
+  if (layers.length > 0) {
+    // Build a tree map of layers that need updating
+    // This includes all parent layer groups
+    var treeMap = buildTreeMap(layers)
+    treeMap.forEach(function(layer){
+      updatePaddingAndSpacingForLayer(layer)
+    })
+
   }
 
-  // Build a tree map of layers that need updating
-  // This includes all parent layer groups
-  var treeMap = buildTreeMap(layers)
-  treeMap.forEach(function(layer){
-    updatePaddingAndSpacingForLayer(layer)
-  })
+  endBenchmark()
+
+  if (PERSISTENT) {
+    COScript.currentCOScript().setShouldKeepAround(false)
+  }
+
 }
 
 
