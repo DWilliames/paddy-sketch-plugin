@@ -12,10 +12,13 @@ function onSetUp(context) {
   document = context.document
   plugin = context.plugin
   command = context.command
+
+  // loadFramework("SketchAsync", "DWSketchAsync")
 }
 
 // Used for determining whether to round to 'whole pixels'
 var pixelFit = NSUserDefaults.standardUserDefaults().boolForKey('tryToFitToPixelBounds')
+var automated = !NSUserDefaults.standardUserDefaults().boolForKey('PaddyNoAutomation')
 
 // ****************************
 //   Plugin command handlers
@@ -24,6 +27,18 @@ var pixelFit = NSUserDefaults.standardUserDefaults().boolForKey('tryToFitToPixel
 // Debugging all actions
 function allActions(context) {
   print(context)
+}
+
+function toggleAutomaticUpdating(context) {
+  NSUserDefaults.standardUserDefaults().setBool_forKey(automated, 'PaddyNoAutomation')
+
+  automated = !automated
+
+  if (!automated) {
+    context.document.showMessage('Paddy automation: disabled ❌')
+  } else {
+    context.document.showMessage('Paddy automation: enabled ✅')
+  }
 }
 
 function detachInstance(context) {
@@ -299,9 +314,16 @@ var layers = []
 
 function selectionChanged(context) {
 
+  if (!automated) {
+    COScript.currentCOScript().setShouldKeepAround(false)
+    return
+  }
+
   if (PERSISTENT) {
     COScript.currentCOScript().setShouldKeepAround(true)
   }
+
+  runInBackground(function() {
 
   layers = []
 
@@ -486,6 +508,8 @@ function selectionChanged(context) {
     COScript.currentCOScript().setShouldKeepAround(false)
   }
 
+  })
+
 }
 
 
@@ -517,65 +541,72 @@ function updatePaddingAndSpacingForLayer(layer) {
   // SYMBOL INSTANCE
   else if (layer.isMemberOfClass(MSSymbolInstance)) {
 
-    updateForSymbolInstance(layer)
+    runOnMainThread(function(){
+      updateForSymbolInstance(layer)
 
-    var bg = getBackgroundForLayer(layer)
-    updatePaddingForLayerBG(bg)
+      var bg = getBackgroundForLayer(layer)
+      updatePaddingForLayerBG(bg)
+    })
+
+
   }
 
   // SYMBOL MASTER
   else if (layer.isMemberOfClass(MSSymbolMaster)) {
-    var bg = getBackgroundForLayer(layer)
-    if (bg) {
-      updatePaddingForLayerBG(bg)
-    } else {
-      bg = backgroundLayerForSymbol(layer)
-      log(1, 'Getting alternate bg', bg)
-    }
-
-    if (!bg) return
-
-    var complete = 0
-    var total = layer.allInstances().count()
-
-    var updateInstances = true
-
-    if (total >= 5) {
-      // if there are more than 10 to update... ask the user if this is what they want to do
-
-      var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())
-
-      var alert = NSAlert.alloc().init()
-      var title = 'Update padding for all ' + total + ' instances?'
-      var message = 'There\'s ' + total + ' instances of this symbol that should have their padding recalculated – do you want to do this now? \n\nIt can take up to a couple of minutes if there are quite a lot.'
-
-      alert.setIcon(iconImage)
-    	alert.setMessageText(title)
-    	alert.setInformativeText(message)
-    	alert.addButtonWithTitle("Update now")
-    	alert.addButtonWithTitle("Do it later")
-
-      updateInstances = (alert.runModal() == '1000')
-    }
-
-
-    if (updateInstances && total > 0) {
-      // Said 'Do it now'
-      // Update all the instance of the symbol
-      var treeMap = buildTreeMap(layer.allInstances())
-
-      treeMap.forEach(function(layer){
-        updatePaddingAndSpacingForLayer(layer)
-        complete++
-      })
-
-      var updatedMessage = 'Paddy: updated ' + total + ' instance'
-      if (total > 1) {
-        updatedMessage += 's'
+    runOnMainThread(function(){
+      var bg = getBackgroundForLayer(layer)
+      if (bg) {
+        updatePaddingForLayerBG(bg)
+      } else {
+        bg = backgroundLayerForSymbol(layer)
+        log(1, 'Getting alternate bg', bg)
       }
 
-      document.showMessage(updatedMessage)
-    }
+      if (!bg) return
+
+      var complete = 0
+      var total = layer.allInstances().count()
+
+      var updateInstances = true
+
+      if (total >= 5) {
+        // if there are more than 10 to update... ask the user if this is what they want to do
+
+        var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())
+
+        var alert = NSAlert.alloc().init()
+        var title = 'Update padding for all ' + total + ' instances?'
+        var message = 'There\'s ' + total + ' instances of this symbol that should have their padding recalculated – do you want to do this now? \n\nIt can take up to a couple of minutes if there are quite a lot.'
+
+        alert.setIcon(iconImage)
+      	alert.setMessageText(title)
+      	alert.setInformativeText(message)
+      	alert.addButtonWithTitle("Update now")
+      	alert.addButtonWithTitle("Do it later")
+
+        updateInstances = (alert.runModal() == '1000')
+      }
+
+
+      if (updateInstances && total > 0) {
+        // Said 'Do it now'
+        // Update all the instance of the symbol
+        var treeMap = buildTreeMap(layer.allInstances())
+
+        treeMap.forEach(function(layer){
+          updatePaddingAndSpacingForLayer(layer)
+          complete++
+        })
+
+        var updatedMessage = 'Paddy: updated ' + total + ' instance'
+        if (total > 1) {
+          updatedMessage += 's'
+        }
+
+        document.showMessage(updatedMessage)
+      }
+
+    })
 
   }
 

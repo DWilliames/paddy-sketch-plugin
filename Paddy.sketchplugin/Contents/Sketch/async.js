@@ -7,16 +7,14 @@ function loadFramework(name, className) {
   return true
 }
 
-
-
-loadFramework("SketchAsync", "DWSketchAsync")
-
 function runInBackground(block) {
-  var target = COSTarget.targetWithJSFunction(block)
-  DWSketchAsync.runInBackground(target)
+  // var target = COSTarget.targetWithJSFunction(block)
+  // DWSketchAsync.runOnBackgroundThread(target)
+  block()
 }
 
-function runOnMain(block) {
-  var target = COSTarget.targetWithJSFunction(block)
-  DWSketchAsync.runInBackground(target)
+function runOnMainThread(block) {
+  // var target = COSTarget.targetWithJSFunction(block)
+  // DWSketchAsync.runOnMainThread(target)
+  block()
 }

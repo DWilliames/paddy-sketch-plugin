@@ -155,3 +155,16 @@ function getValueForKeyFromLayer(key, layer) {
   var pluginIdentifier = plugin.identifier()
   return command.valueForKey_onLayer_forPluginIdentifier(key, layer, pluginIdentifier)
 }
+
+
+// User deafults
+
+var defaults = NSUserDefaults.standardUserDefaults()
+
+function saveValueWithKeyToDefaults(value, key) {
+  defaults.setObject_forKey(value, key)
+}
+
+function getValueWithKeyFromDefaults(key) {
+  return defaults.objectForKey(key)
+}
