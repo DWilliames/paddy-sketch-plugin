@@ -316,6 +316,8 @@ var layers = []
 
 function selectionChanged(context) {
 
+  var newSelection = context.actionContext.newSelection
+
   if (!automated) {
     COScript.currentCOScript().setShouldKeepAround(false)
     return
@@ -325,12 +327,27 @@ function selectionChanged(context) {
     COScript.currentCOScript().setShouldKeepAround(true)
   }
 
-  runInBackground(function() {
-
   layers = []
 
   startBenchmark()
   document = context.actionContext.document
+
+  // print('Selection changed - OLD/NEW')
+  // print(context.actionContext.oldSelection)
+  // print(context.actionContext.newSelection)
+
+  if (newSelection.length == 1 && newSelection[0].name() == "PADDY-NULL-LAYER") {
+    // The selection was becuase of the 'Null layer' used to resolve Craft's stupid Duplicator conflict!!!
+
+    log('Selected the NULL layer; will reselect', context.actionContext.oldSelection)
+
+    context.actionContext.oldSelection.forEach(function(layer) {
+      layer.select_byExpandingSelection(true, true)
+    })
+
+    COScript.currentCOScript().setShouldKeepAround(false)
+    return
+  }
 
 
   // Only include layers that had properties change
@@ -350,8 +367,7 @@ function selectionChanged(context) {
   if (!persistentLayers) persistentLayers = []
 
   // Only run if nothing is now selected
-  if (context.actionContext.newSelection.length > 0) {
-
+  if (newSelection.length > 0) {
 
     var previouslySelectedParentProps = initialParentProps
 
@@ -359,7 +375,7 @@ function selectionChanged(context) {
     initialParentProps = {}
     persistentLayers = []
 
-    context.actionContext.newSelection.forEach(function(layer) {
+    newSelection.forEach(function(layer) {
 
       var rect = layer.absoluteRect() //rectForLayer(layer)
       var props = {
@@ -413,11 +429,6 @@ function selectionChanged(context) {
     saveValueWithKeyToDoc(initialSelectedProps, previouslySelectedKey)
     saveValueWithKeyToDoc(initialParentProps, previousParentKey)
     saveValueWithKeyToDoc(persistentLayers, persistentLayersKey)
-
-    context.actionContext.newSelection.forEach(function(layer) {
-      layer.select_byExpandingSelection(true, true)
-    })
-
 
     return
   }
@@ -510,8 +521,6 @@ function selectionChanged(context) {
     COScript.currentCOScript().setShouldKeepAround(false)
   }
 
-  })
-
 }
 
 
@@ -571,7 +580,7 @@ function updatePaddingAndSpacingForLayer(layer) {
 
       var updateInstances = true
 
-      if (total >= 5) {
+      if (total >= 10) {
         // if there are more than 10 to update... ask the user if this is what they want to do
 
         var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())

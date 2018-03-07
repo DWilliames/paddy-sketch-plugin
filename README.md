@@ -84,7 +84,7 @@ Examples:
 
 Run the plugin command **'Enter padding for selection'** or **`Control + Alt + p`** to bring up an input field, to save padding to all your selected layers easier.
 
-If you don't want to be prompted to enter the specified padding, and instead want it to be automatically inferred from what it already is – run the command **'Imply padding for selection'** or **`Command + p`**.
+If you don't want to be prompted to enter the specified padding, and instead want it to be automatically inferred from what it already is – run the command **'Imply padding for selection'** or **`Command + shift + p`**.
 
 ![Padding example](.images/GIFs/padding.gif)
 

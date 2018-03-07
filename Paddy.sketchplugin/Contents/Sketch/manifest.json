@@ -4,7 +4,7 @@
   "author": "David Williames",
   "homepage": "https://github.com/DWilliames/paddy-sketch-plugin",
   "appcast": "https://raw.githubusercontent.com/DWilliames/paddy-sketch-plugin/master/.appcast.xml",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "identifier": "com.davidwilliames.sketch-plugin.paddy",
   "compatibleVersion": 47,
   "bundleVersion": 1,
@@ -21,7 +21,7 @@
     {
       "name": "Imply padding for selection",
       "identifier": "autoApplyPadding",
-      "shortcut": "command p",
+      "shortcut": "command shift p",
       "script": "main.js",
       "handler": "autoApplyPadding",
       "description": "Apply implied padding to the currently selected layers",
