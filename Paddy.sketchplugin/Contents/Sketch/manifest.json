@@ -21,7 +21,7 @@
     {
       "name": "Imply padding for selection",
       "identifier": "autoApplyPadding",
-      "shortcut": "command p",
+      "shortcut": "command shift p",
       "script": "main.js",
       "handler": "autoApplyPadding",
       "description": "Apply implied padding to the currently selected layers",

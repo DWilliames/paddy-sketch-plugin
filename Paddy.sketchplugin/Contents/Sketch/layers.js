@@ -17,7 +17,7 @@ function getContainerFrameForBGLayer(bg) {
       return false
     if (layer.isMemberOfClass(MSSliceLayer))
       return false
-    if (layer.name().startsWith('-'))
+    if (shouldLayerBeIgnored(layer))
       return false
     return true
   })
@@ -36,13 +36,24 @@ function getContainerFrameForBGLayer(bg) {
 }
 
 
+// If the layer should be ignored when calculating the rect of a layer
+function shouldLayerBeIgnored(layer) {
+  if (!layer) return
+
+  if (layer.name().startsWith('-')) {
+    return true
+  }
+
+  return false
+}
+
 // Whether to check for Stack Groups
 var takeIntoAccountStackViews = true
 
 
 // Return the rect for a layer as an MSRect
 function rectForLayer(layer, ignoreWithPrefix) {
-  if (!layer || (ignoreWithPrefix && layer.name().startsWith('-'))) {
+  if (!layer || (ignoreWithPrefix && shouldLayerBeIgnored(layer))) {
     return
   }
 
@@ -161,7 +172,7 @@ function getBGCandidateFromLayers(layers) {
 
   var candidate
   var existingBackground = layers.find(function(layer) {
-    if (layer.name().startsWith('-'))
+    if (shouldLayerBeIgnored(layer))
       return false
 
     if (canLayerHavePadding(layer)) {

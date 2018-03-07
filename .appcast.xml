@@ -6,6 +6,11 @@
     <description>Automated padding, spacing and alignment for your Sketch layers</description>
     <language>en</language>
     <item>
+      <title>Version 1.0.6</title>
+      <description>Squashed some more bugs</description>
+      <enclosure url="https://github.com/DWilliames/paddy-sketch-plugin/releases/download/v1.0.6/Paddy.sketchplugin.zip" sparkle:version="1.0.6" />
+    </item>
+    <item>
       <title>Version 1.0.5</title>
       <description>More bug fixes</description>
       <enclosure url="https://github.com/DWilliames/paddy-sketch-plugin/releases/download/v1.0.5/Paddy.sketchplugin.zip" sparkle:version="1.0.5" />

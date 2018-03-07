@@ -332,11 +332,15 @@ function selectionChanged(context) {
   startBenchmark()
   document = context.actionContext.document
 
+  // print('Selection changed - OLD/NEW')
+  // print(context.actionContext.oldSelection)
+  // print(context.actionContext.newSelection)
+
   if (newSelection.length == 1 && newSelection[0].name() == "PADDY-NULL-LAYER") {
     // The selection was becuase of the 'Null layer' used to resolve Craft's stupid Duplicator conflict!!!
 
     log('Selected the NULL layer; will reselect', context.actionContext.oldSelection)
-    
+
     context.actionContext.oldSelection.forEach(function(layer) {
       layer.select_byExpandingSelection(true, true)
     })
@@ -576,7 +580,7 @@ function updatePaddingAndSpacingForLayer(layer) {
 
       var updateInstances = true
 
-      if (total >= 5) {
+      if (total >= 10) {
         // if there are more than 10 to update... ask the user if this is what they want to do
 
         var iconImage = NSImage.alloc().initByReferencingFile(plugin.urlForResourceNamed("icon.png").path())

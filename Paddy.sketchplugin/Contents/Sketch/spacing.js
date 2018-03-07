@@ -234,7 +234,7 @@ function applySpacingToGroup(spacing, groupLayer) {
       return false
     if (layer.isMemberOfClass(MSSliceLayer))
       return false
-    if (layer.name().startsWith('-'))
+    if (shouldLayerBeIgnored(layer))
       return false
     return true
   })
