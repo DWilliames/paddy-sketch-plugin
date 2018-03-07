@@ -451,13 +451,13 @@ function resizeLayer(layer) {
   // A hack for resizing – just in case Craft's Duplicator is installed
   // Select a 'Fake' layer, so that when we 'resize', the selection is not empty
   var nullLayer = MSLayer.alloc().init()
-  nullLayer.name = "NULL LAYER"
+  nullLayer.name = "PADDY-NULL-LAYER"
   document.currentPage().addLayer(nullLayer)
-  nullLayer.select_byExtendingSelection(true, true)
+  nullLayer.select_byExpandingSelection(true, false)
 
   layer.layerDidEndResize()
 
-  nullLayer.select_byExtendingSelection(false, false)
+  nullLayer.select_byExpandingSelection(false, false)
   nullLayer.removeFromParent()
 }
 
