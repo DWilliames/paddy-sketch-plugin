@@ -41,6 +41,12 @@ function shouldLayerBeIgnored(layer) {
   if (!layer) return
 
   if (layer.name().startsWith('-')) {
+    
+    // Don't ignore if layer is a text layer whose name wasn't manually modified
+    if (layer.isMemberOfClass(MSTextLayer) && layer.stringValue() == layer.name()) {
+      return false
+    }
+
     return true
   }
 

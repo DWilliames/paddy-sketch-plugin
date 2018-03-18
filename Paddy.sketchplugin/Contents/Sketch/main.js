@@ -564,6 +564,10 @@ function updatePaddingAndSpacingForLayer(layer) {
 
   // SYMBOL MASTER
   else if (layer.isMemberOfClass(MSSymbolMaster)) {
+
+    // Let's ignore 'Symbol Masters' for Now – I need to figure out a better approach
+    return
+
     runOnMainThread(function(){
       var bg = getBackgroundForLayer(layer)
       if (bg) {
