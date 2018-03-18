@@ -81,6 +81,18 @@ function updateForSymbolInstance(symbol) {
   }
 
 
+  // Let's remember the background position/size
+  originalProperties[bg.objectID()] = {
+    width: bg.frame().width(),
+    height: bg.frame().height()
+  }
+
+  originalPositions[bg.objectID()] = {
+    x: bg.frame().x(),
+    y: bg.frame().y()
+  }
+
+
   // Let's find out all the dependent layers
   // That is, after changing the string value of a label; it moves other layers next to it
 
@@ -272,25 +284,24 @@ function updateForSymbolInstance(symbol) {
   log(2, 'Got new size from master', newSize)
   log(3, 'Resetting overrides on master')
 
-  master.children().forEach(function(layer) {
-    var id = layer.objectID()
+  // Reset all the values and positions
+  Object.keys(originalProperties).forEach(function(id) {
+    var layer = master.layerWithID(id)
 
-    if (originalProperties[id]) {
+    layer.frame().width = originalProperties[id].width
+    layer.frame().height = originalProperties[id].height
+
+    if (layer.isMemberOfClass(MSTextLayer)) {
       layer.stringValue = originalProperties[id].stringValue
       layer.textBehaviour = originalProperties[id].behaviour
-      layer.frame().width = originalProperties[id].width
-      layer.frame().height = originalProperties[id].height
     }
+  })
 
-    if (originalPositions[id]) {
-      newPositions[id] = {
-        x: layer.frame().x(),
-        y: layer.frame().y()
-      }
+  Object.keys(originalPositions).forEach(function(id) {
+    var layer = master.layerWithID(id)
 
-      layer.frame().setX(originalPositions[id].x)
-      layer.frame().setY(originalPositions[id].y)
-    }
+    layer.frame().setX(originalPositions[id].x)
+    layer.frame().setY(originalPositions[id].y)
   })
 
   takeIntoAccountStackViews = false
