@@ -40,6 +40,9 @@ function getContainerFrameForBGLayer(bg) {
 function shouldLayerBeIgnored(layer) {
   if (!layer) return
 
+  // Don't ignore if layer is a text layer whose name wasn't manually modified
+  if (layer.class() === MSTextLayer && layer.stringValue() === layer.name()) return false
+  
   if (layer.name().startsWith('-')) {
     return true
   }
