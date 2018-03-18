@@ -4,7 +4,7 @@
   "author": "David Williames",
   "homepage": "https://github.com/DWilliames/paddy-sketch-plugin",
   "appcast": "https://raw.githubusercontent.com/DWilliames/paddy-sketch-plugin/master/.appcast.xml",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "identifier": "com.davidwilliames.sketch-plugin.paddy",
   "compatibleVersion": 47,
   "bundleVersion": 1,
