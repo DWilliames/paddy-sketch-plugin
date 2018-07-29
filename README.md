@@ -24,7 +24,7 @@ It will definitely help me to be able to support this plugin further.
   <img width="160" height="41" src=".images/paypal-badge.png" >
 </a>
 
-Follow [@davidwilliames](https://twitter.com/davidwilliames) on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/davidwilliames.svg?style=social&label=Follow)]()
+Follow [@davidwilliames](https://twitter.com/davidwilliames) on Twitter [![Twitter Follow](https://img.shields.io/twitter/follow/davidwilliames.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=davidwilliames)
 
 ---
 
