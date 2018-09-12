@@ -186,7 +186,7 @@ Similar to spacing / padding, it is by naming the group something specific, with
 * 'c' / 'center' – align in the center, horizontally
 * 'r' / 'right' – align to the right
 * 't' / 'top' – align on the top
-* 'm' / 'middle' – align in the middler, vertically
+* 'm' / 'middle' – align in the middle, vertically
 * 'b' / 'bottom' – align on the bottom
 
 ![Alignment example](.images/GIFs/alignment.gif)
