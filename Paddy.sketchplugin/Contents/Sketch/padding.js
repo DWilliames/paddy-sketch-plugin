@@ -86,7 +86,7 @@ function layerHasPadding(layer) {
 function layerPaddingString(layer) {
   if (!layer) return
 
-  var regex = /^(?!-).*\[(.*)\]/g
+  var regex = /.*\[(.*)\](?!\.).*/g
   return firstRegexMatch(regex, layer.name())
 }
 
