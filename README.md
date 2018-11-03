@@ -1,3 +1,16 @@
+# ⚠️ This project is no longer actively maintained 
+
+Whilst some of the functinality may continue to work on versions earlier than Sketch v53; I am no longer spending my time actively working on this project. Thanks for all the support of those that have been using Paddy!
+
+For a deeper understanding of why I have stopped working on it; [find out more here.](https://github.com/DWilliames/paddy2-beta/issues/76)
+
+It seems that the Sketch team are looking into building this functionality natively 🎉; in the meantime, Anima have released an update that has a lot of the same functionality as Paddy 2; [check it out here.](https://medium.com/sketch-app-sources/introducing-padding-in-sketch-with-anima-d5c884fd9887)
+
+This code is open source, so please feel free to fork it and do whatever you want with it 👌
+
+---
+
+
 <a href="https://github.com/DWilliames/paddy-sketch-plugin/archive/master.zip">
   <img src=".images/banner-new.svg" alt="Paddy sketch plugin – automated padding and spacing for your Sketch layers"/>
 </a>
