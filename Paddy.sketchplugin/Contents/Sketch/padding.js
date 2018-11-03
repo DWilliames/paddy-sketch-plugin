@@ -27,7 +27,7 @@ Example padding object:
  * Return if a layer can have padding associated with it
  */
 function canLayerHavePadding(layer) {
-  return (layer.isMemberOfClass(MSShapeGroup) || layer.isMemberOfClass(MSSymbolInstance))
+  return (layer.isMemberOfClass(MSShapeGroup) || layer.isMemberOfClass(MSSymbolInstance) || layer.isMemberOfClass(MSRectangleShape))
 }
 
 
@@ -86,7 +86,7 @@ function layerHasPadding(layer) {
 function layerPaddingString(layer) {
   if (!layer) return
 
-  var regex = /.*\[(.*)\]/g
+  var regex = /.*\[(.*)\](?!\.).*/g
   return firstRegexMatch(regex, layer.name())
 }
 
