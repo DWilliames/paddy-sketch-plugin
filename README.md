@@ -1,13 +1,12 @@
-<a href="https://github.com/DWilliames/paddy-sketch-plugin/archive/master.zip">
+<a href="https://github.com/nmessager/paddy-sketch-plugin/archive/master.zip">
   <img src=".images/banner-new.svg" alt="Paddy sketch plugin – automated padding and spacing for your Sketch layers"/>
 </a>
 
 ---
 
-
 ![Using Paddy](.images/GIFs/main.gif)
 
-<a href="https://github.com/DWilliames/paddy-sketch-plugin/archive/master.zip">
+<a href="https://github.com/nmessager/paddy-sketch-plugin/archive/master.zip">
   <img height="40" src=".images/download.svg" >
 </a>
 
