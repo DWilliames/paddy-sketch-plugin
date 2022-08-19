@@ -75,7 +75,7 @@ There are some similar plugins out there that do some of the features of this pl
 
 <img id="padding" src=".images/feature-padding.svg" alt="Layer padding" height="60"/>
 
-Padding can be applied to one 'Background' layer (either a shape layer or a Symbol) of a group. The 'Background' layer will automatically resize itself so that it surrounds all other layers within that group by a specified amount.
+[Padding](https://www.scaler.com/topics/css/padding-in-css/) can be applied to one 'Background' layer (either a shape layer or a Symbol) of a group. The 'Background' layer will automatically resize itself so that it surrounds all other layers within that group by a specified amount.
 
 Specify the padding amount within the background layer's name between '**[**' and '**]**'. e.g. **`Background [10 20]`**. The format of the padding values should be in the same order as [CSS](https://www.w3schools.com/cssref/pr_padding.asp).
 
